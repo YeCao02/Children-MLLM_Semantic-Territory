@@ -1,0 +1,14 @@
+{
+  "visualization_unit": "balanced child direct environment utterances vs AI image-level combined outputs",
+  "children_n": 220,
+  "ai_n": 220,
+  "children_ke_joint_centroid": 0.925463080406189,
+  "ai_ke_joint_centroid": 0.7359588742256165,
+  "children_p95_joint_centroid": 0.8926607251167297,
+  "ai_p95_joint_centroid": 0.6850776821374892,
+  "larger_extent_group": "Children",
+  "centroid_distance": 0.6199226379394531,
+  "child_to_ai_nn_median": 0.5425530076026917,
+  "ai_to_child_nn_median": 0.6700240969657898,
+  "figure": "S:\\LLMs\\Qwen3VL-children\\Paper2_T-SNE_pipeline\\data\\figures_v2\\Fig_v2_hao_style_ai_children.png"
+}

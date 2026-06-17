@@ -1,0 +1,25 @@
+{
+  "entropy_summary": {
+    "AI combined": {
+      "median": 4.283224624532699,
+      "mean": 4.273682575043943,
+      "ci95": [
+        4.08771015724304,
+        4.419719437604858
+      ]
+    },
+    "Children direct": {
+      "median": 4.391993550382461,
+      "mean": 4.3852259104633,
+      "ci95": [
+        4.251529613568734,
+        4.482187633373652
+      ]
+    }
+  },
+  "source_metrics": {
+    "analysis_results_v2": "S:\\LLMs\\Qwen3VL-children\\Paper2_T-SNE_pipeline\\data\\analysis_results_v2.json",
+    "hao_style_metrics": "S:\\LLMs\\Qwen3VL-children\\Paper2_T-SNE_pipeline\\data\\hao_style_metrics.json",
+    "legacy_analysis_results": "S:\\LLMs\\Qwen3VL-children\\Paper2_T-SNE_pipeline\\data\\analysis_results.json"
+  }
+}

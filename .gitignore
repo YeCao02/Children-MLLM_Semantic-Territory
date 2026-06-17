@@ -1,0 +1,23 @@
+# Raw and private text data
+txt_cleaned/*.txt
+data/corpus_children.json
+data/corpus_ai.json
+
+# Large local artifacts
+data/*.pkl
+data/model_texts.pkl
+data/embeddings.pkl
+*.gguf
+
+# Python runtime artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# OS/editor metadata
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+

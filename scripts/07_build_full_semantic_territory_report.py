@@ -1,0 +1,348 @@
+from __future__ import annotations
+
+import base64
+import importlib.util
+import json
+import math
+from pathlib import Path
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+from sklearn.decomposition import PCA
+
+
+BASE_DIR = Path(__file__).resolve().parents[1]
+DATA_DIR = BASE_DIR / "data"
+FIG_DIR = DATA_DIR / "figures_v2"
+
+
+def load_method_module():
+    path = Path(__file__).with_name("05_method_audit_v2.py")
+    spec = importlib.util.spec_from_file_location("method_audit_v2", path)
+    module = importlib.util.module_from_spec(spec)
+    if spec.loader is None:
+        raise RuntimeError(f"Cannot load {path}")
+    spec.loader.exec_module(module)
+    return module
+
+
+def image_uri(path: Path) -> str:
+    return "data:image/png;base64," + base64.b64encode(path.read_bytes()).decode("utf-8")
+
+
+def read_json(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def semantic_entropy(points: np.ndarray, grid_size: int = 2) -> float:
+    if len(points) == 0:
+        return float("nan")
+    mins = points.min(axis=0)
+    maxs = points.max(axis=0)
+    steps = (maxs - mins) / grid_size
+    steps[steps == 0] = 1.0
+    grid = np.floor((points - mins) / steps).astype(int)
+    grid = np.clip(grid, 0, grid_size - 1)
+    _, counts = np.unique(grid, axis=0, return_counts=True)
+    probs = counts / counts.sum()
+    return float(-np.sum(probs * np.log(probs)))
+
+
+def bootstrap_entropy(child_embs: np.ndarray, ai_embs: np.ndarray, repeats: int = 500, sample_n: int = 100) -> pd.DataFrame:
+    rng = np.random.default_rng(42)
+    sample_n = min(sample_n, len(child_embs), len(ai_embs))
+    rows = []
+    for i in range(repeats):
+        c_idx = rng.choice(len(child_embs), sample_n, replace=False)
+        a_idx = rng.choice(len(ai_embs), sample_n, replace=False)
+        stacked = np.vstack([child_embs[c_idx], ai_embs[a_idx]])
+        pca_n = min(10, stacked.shape[0] - 1, stacked.shape[1])
+        pca = PCA(n_components=pca_n, random_state=42)
+        pca_points = pca.fit_transform(stacked)
+        c_points = pca_points[:sample_n]
+        a_points = pca_points[sample_n:]
+        rows.append({"group": "Children direct", "entropy": semantic_entropy(c_points), "iteration": i})
+        rows.append({"group": "AI combined", "entropy": semantic_entropy(a_points), "iteration": i})
+    return pd.DataFrame(rows)
+
+
+def make_entropy_figure() -> tuple[Path, dict]:
+    method = load_method_module()
+    method.configure_plotting()
+    emb_data = method.load_embedding_data()
+    child_records = method.extract_children_segments_with_metadata()
+    child_mask = np.array([method.is_direct_environment_text(r["text"]) for r in child_records])
+    child_embs = emb_data["children"]["embeddings"][child_mask]
+    ai_meta = method.reconstruct_ai_metadata(emb_data["ai"]["texts"], emb_data["ai"]["embeddings"])
+    ai_embs = ai_meta["combined"]["embeddings"]
+
+    df = bootstrap_entropy(child_embs, ai_embs)
+    fig, ax = plt.subplots(figsize=(6.6, 4.8))
+    sns.violinplot(
+        data=df,
+        x="group",
+        y="entropy",
+        palette={"Children direct": "#4C78D8", "AI combined": "#F25A5A"},
+        inner="quartile",
+        ax=ax,
+    )
+    ax.set_title("Exploratory semantic entropy\n(PCA-10D grid entropy, balanced resampling)")
+    ax.set_xlabel("")
+    ax.set_ylabel("Shannon entropy")
+    fig.tight_layout()
+    out = FIG_DIR / "Fig_v2_semantic_entropy.png"
+    fig.savefig(out, bbox_inches="tight")
+    plt.close(fig)
+
+    summary = {}
+    for group, sub in df.groupby("group"):
+        summary[group] = {
+            "median": float(sub["entropy"].median()),
+            "mean": float(sub["entropy"].mean()),
+            "ci95": [
+                float(np.percentile(sub["entropy"], 2.5)),
+                float(np.percentile(sub["entropy"], 97.5)),
+            ],
+        }
+    return out, summary
+
+
+def figure_card(title: str, path: Path, caption: str) -> str:
+    return f"""
+    <section class="card figure-card">
+      <h2>{title}</h2>
+      <img src="{image_uri(path)}" alt="{title}">
+      <p class="caption">{caption}</p>
+    </section>
+    """
+
+
+def metric(value: float | int | str, digits: int = 3) -> str:
+    if isinstance(value, float):
+        return f"{value:.{digits}f}"
+    return str(value)
+
+
+def build_html() -> Path:
+    FIG_DIR.mkdir(parents=True, exist_ok=True)
+    entropy_fig, entropy_summary = make_entropy_figure()
+
+    v2 = read_json(DATA_DIR / "analysis_results_v2.json")
+    hao = read_json(DATA_DIR / "hao_style_metrics.json")
+    old = read_json(DATA_DIR / "analysis_results.json")
+
+    figs = {
+        "hao": FIG_DIR / "Fig_v2_hao_style_ai_children.png",
+        "traditional": DATA_DIR / "figures" / "Fig3_tsne.png",
+        "diagnostic": FIG_DIR / "Fig_v2_tsne_diagnostic.png",
+        "extent": FIG_DIR / "Fig_v2_highdim_extent.png",
+        "heatmap": FIG_DIR / "Fig_v2_centroid_heatmap.png",
+        "keywords": FIG_DIR / "Fig_v2_keyword_contrast.png",
+        "entropy": entropy_fig,
+        "violin": DATA_DIR / "figures" / "Fig3_violin.png",
+    }
+
+    transferred_methods = [
+        ("High-dimensional embedding space", "Hao et al. use SPECTER 2.0 to represent papers in a 768D scientific-text space; here, Qwen3-Embedding-8B represents children and AI texts in a 4096D semantic space."),
+        ("Knowledge extent", "The central indicator is not the t-SNE footprint. KE is computed in the original embedding space as the maximum distance from the group centroid."),
+        ("Balanced repeated sampling", "Hao repeatedly samples equal-sized AI and non-AI paper batches. Here, balanced resampling is used for KE/radius and entropy sensitivity checks."),
+        ("Visual t-SNE only", "The Hao-style map is kept as an explanatory figure. Statistical claims should refer to 4096D metrics, not 2D t-SNE area."),
+        ("Entropy / concentration", "Hao also compares knowledge entropy. Here, exploratory semantic entropy tests whether AI wording is more concentrated than children’s direct environmental perception."),
+        ("Sub-domain logic", "Hao tests the pattern across fields/subfields. The next equivalent step is to compare image types, space types, or child-friendly dimensions once labels are added."),
+    ]
+
+    method_rows = "\n".join(
+        f"<tr><td>{name}</td><td>{desc}</td></tr>" for name, desc in transferred_methods
+    )
+
+    audit = v2["audit"]
+    primary = v2["primary_comparison"]
+    child_env = v2["metrics"]["child_env_scene"]
+    ai_combined = v2["metrics"]["ai_combined"]
+
+    html = f"""<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Children-MLLM Semantic Territory Report</title>
+  <style>
+    :root {{
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --ink: #15202b;
+      --muted: #5f6b7a;
+      --line: #dce3ea;
+      --blue: #4C78D8;
+      --red: #F25A5A;
+      --green: #2a9d8f;
+    }}
+    * {{ box-sizing: border-box; }}
+    body {{ margin: 0; background: var(--bg); color: var(--ink); font-family: "Noto Sans SC", "Microsoft YaHei", Arial, sans-serif; }}
+    main {{ max-width: 1240px; margin: 0 auto; padding: 28px 22px 48px; }}
+    h1 {{ margin: 0 0 8px; font-size: 31px; letter-spacing: -0.01em; }}
+    h2 {{ margin: 0 0 12px; font-size: 21px; }}
+    h3 {{ margin: 18px 0 8px; font-size: 16px; }}
+    p, li {{ line-height: 1.72; }}
+    .lead {{ color: var(--muted); font-size: 16px; margin-bottom: 20px; }}
+    .card {{ background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 18px; margin: 16px 0; box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04); }}
+    .grid {{ display: grid; gap: 14px; }}
+    .grid.metrics {{ grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }}
+    .grid.two {{ grid-template-columns: repeat(auto-fit, minmax(430px, 1fr)); align-items: start; }}
+    .metric {{ background: #eef4f9; border-radius: 7px; padding: 14px; }}
+    .metric .label {{ color: var(--muted); font-size: 13px; }}
+    .metric .value {{ font-size: 27px; font-weight: 700; margin-top: 4px; }}
+    img {{ width: 100%; height: auto; display: block; border: 1px solid #e5eaf0; border-radius: 6px; background: white; }}
+    .caption {{ color: var(--muted); font-size: 14px; margin: 10px 0 0; }}
+    table {{ width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }}
+    th, td {{ border-bottom: 1px solid #e8edf2; padding: 10px; vertical-align: top; text-align: left; }}
+    th {{ background: #eef4f9; }}
+    .pill {{ display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }}
+    .blue {{ background: rgba(76,120,216,.14); color: #274a9b; }}
+    .red {{ background: rgba(242,90,90,.14); color: #a83232; }}
+    .green {{ background: rgba(42,157,143,.14); color: #176f64; }}
+    .note {{ border-left: 4px solid var(--green); padding-left: 12px; }}
+    code {{ background: #eef2f7; padding: 1px 5px; border-radius: 4px; }}
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Children-MLLM Semantic Territory Report</h1>
+    <p class="lead">A Hao et al. inspired pipeline for comparing children’s real environmental perception with MLLM-generated child-perspective evaluations. Embedding model: Qwen3-Embedding-8B.</p>
+  </header>
+
+  <section class="card">
+    <h2>1. Executive Interpretation</h2>
+    <p class="note">The main methodological point is to analyze <strong>shared and distinctive semantic territories</strong>, not only a one-dimensional gap. AI and children share abstract evaluation dimensions such as safety, facilities, interaction and attractiveness; they diverge in the semantic territories they expand into.</p>
+    <ul>
+      <li><span class="pill blue">Children</span> expand toward situated and embodied urban experience: practical use, school/commercial street contexts, bicycle and mobility, danger, fear, supervision, and daily-life constraints.</li>
+      <li><span class="pill red">AI</span> expands toward standardized planning vocabulary: smart facilities, creativity, fresh air, exploration, interaction devices, greenery and generic child-friendly design templates.</li>
+      <li><span class="pill green">Shared core</span> is measurable through nearest-neighbor similarity and local overlap, while difference is measured through centroid distance, semantic extent, entropy, and distinctive terms.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>2. Key Data and High-dimensional Metrics</h2>
+    <div class="grid metrics">
+      <div class="metric"><div class="label">Children raw segments</div><div class="value">{audit['children_segments']}</div></div>
+      <div class="metric"><div class="label">Children direct perception</div><div class="value">{audit['children_direct_segments']}</div></div>
+      <div class="metric"><div class="label">Children meta-evaluation</div><div class="value">{audit['children_meta_segments']}</div></div>
+      <div class="metric"><div class="label">AI image units</div><div class="value">{audit['ai_image_units']}</div></div>
+      <div class="metric"><div class="label">Hao-style Children KE</div><div class="value">{metric(hao['children_ke_joint_centroid'])}</div></div>
+      <div class="metric"><div class="label">Hao-style AI KE</div><div class="value">{metric(hao['ai_ke_joint_centroid'])}</div></div>
+      <div class="metric"><div class="label">Centroid distance</div><div class="value">{metric(hao['centroid_distance'])}</div></div>
+      <div class="metric"><div class="label">Primary permutation P</div><div class="value">{metric(primary['permutation_p_value'], 4)}</div></div>
+    </div>
+    <table>
+      <thead><tr><th>Metric view</th><th>Children</th><th>AI</th><th>Interpretation</th></tr></thead>
+      <tbody>
+        <tr><td>Hao-style balanced direct-text view</td><td>KE {hao['children_ke_joint_centroid']:.3f}</td><td>KE {hao['ai_ke_joint_centroid']:.3f}</td><td>Children occupy the broader semantic territory in direct perception utterances.</td></tr>
+        <tr><td>Conservative scene-level audit</td><td>KE {child_env['ke']:.3f}; p95 {child_env['p95_radius']:.3f}</td><td>KE {ai_combined['ke']:.3f}; p95 {ai_combined['p95_radius']:.3f}</td><td>Scene aggregation reduces child-side variance; use as a sensitivity check rather than the only result.</td></tr>
+        <tr><td>Nearest-neighbor overlap</td><td>child-to-AI median {hao['child_to_ai_nn_median']:.3f}</td><td>AI-to-child median {hao['ai_to_child_nn_median']:.3f}</td><td>AI outputs often find a close child-side analogue, but many child utterances remain hard to match.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>3. What Was Learned from Hao et al. (2026)</h2>
+    <p>Hao et al. embed papers into a high-dimensional scientific text space, compute knowledge extent in that original space, and use t-SNE only to visualize the relationship. The same logic is adapted here for children and AI texts.</p>
+    <table>
+      <thead><tr><th>Transferable element</th><th>Adaptation in this pipeline</th></tr></thead>
+      <tbody>{method_rows}</tbody>
+    </table>
+  </section>
+
+  {figure_card(
+      "4. Hao-style Semantic Territory Map",
+      figs["hao"],
+      "This is the core explanatory figure. Circles and KE values summarize high-dimensional semantic extent; t-SNE is used only to place points and labels in a visually interpretable shared space."
+  )}
+
+  <div class="grid two">
+    {figure_card(
+        "5. Traditional t-SNE View",
+        figs["traditional"],
+        "This preserves the conventional t-SNE plot for comparison. It is useful for seeing coarse separation, but it does not explain what the separation means."
+    )}
+    {figure_card(
+        "6. Diagnostic t-SNE: Text Type Effect",
+        figs["diagnostic"],
+        "This diagnostic plot shows that AI reason and suggestion form different textual clusters. This is why reason and suggestion should be treated as separate or explicitly combined image-level units."
+    )}
+  </div>
+
+  <div class="grid two">
+    {figure_card(
+        "7. High-dimensional Semantic Extent",
+        figs["extent"],
+        "Balanced resampling shows how KE, p95 radius and mean radius change across children, AI combined, AI reason and AI suggestion."
+    )}
+    {figure_card(
+        "8. Exploratory Semantic Entropy",
+        figs["entropy"],
+        f"Following Hao's entropy idea, this exploratory check estimates concentration in a PCA-10D grid. Median entropy: children {entropy_summary['Children direct']['median']:.3f}, AI {entropy_summary['AI combined']['median']:.3f}."
+    )}
+  </div>
+
+  <div class="grid two">
+    {figure_card(
+        "9. Centroid Distance Matrix",
+        figs["heatmap"],
+        "This matrix separates children’s direct environment perception, children’s meta-evaluation of AI/expert text, and AI reason/suggestion/combined outputs."
+    )}
+    {figure_card(
+        "10. Distinctive Semantic Anchors",
+        figs["keywords"],
+        "Domain-term contrast helps interpret what the embedding-space difference means substantively."
+    )}
+  </div>
+
+  {figure_card(
+      "11. Pairwise Similarity Distribution",
+      figs["violin"],
+      "Within-group and between-group cosine similarities provide a complementary semantic-gap check. Treat it as supportive evidence, not as the only finding."
+  )}
+
+  <section class="card">
+    <h2>12. Additional Analyses to Add Next</h2>
+    <ol>
+      <li><strong>Image-paired semantic error:</strong> create an <code>image_id -> children_comments -> AI_output</code> table, then compute per-image centroid distance and nearest-neighbor mismatch.</li>
+      <li><strong>Dimension-level coverage:</strong> manually or semi-automatically code safety, practicality, accessibility, play, greenery, digital facilities, social supervision and everyday constraints, then compare coverage rates.</li>
+      <li><strong>Sub-domain robustness:</strong> follow Hao's field/subfield logic by grouping images into school, commercial street, park, street, waterfront, transit and residual public spaces.</li>
+      <li><strong>Template concentration:</strong> measure repeated AI motifs such as smart facilities, interactive installations, greenery, fresh air and creativity, then compare with children’s situated motifs.</li>
+      <li><strong>t-SNE robustness:</strong> keep one polished Hao-style map, but run multiple seeds/batches in appendix to show the conclusion is not a single projection artifact.</li>
+    </ol>
+  </section>
+</main>
+</body>
+</html>
+"""
+
+    out = BASE_DIR / "Children_MLLM_Semantic_Territory_Full_Report.html"
+    out.write_text(html, encoding="utf-8")
+
+    metrics_out = {
+        "entropy_summary": entropy_summary,
+        "source_metrics": {
+            "analysis_results_v2": str(DATA_DIR / "analysis_results_v2.json"),
+            "hao_style_metrics": str(DATA_DIR / "hao_style_metrics.json"),
+            "legacy_analysis_results": str(DATA_DIR / "analysis_results.json"),
+        },
+    }
+    (DATA_DIR / "full_report_metrics.json").write_text(
+        json.dumps(metrics_out, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    return out
+
+
+def main() -> None:
+    out = build_html()
+    print(f"Saved full semantic territory report: {out}")
+
+
+if __name__ == "__main__":
+    main()

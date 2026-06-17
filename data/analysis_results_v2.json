@@ -1,0 +1,440 @@
+{
+  "base_dir": "S:\\LLMs\\Qwen3VL-children\\Paper2_T-SNE_pipeline",
+  "audit": {
+    "children_segments": 463,
+    "children_direct_segments": 331,
+    "children_meta_segments": 132,
+    "child_scene_units": 22,
+    "child_env_scene_units": 22,
+    "ai_image_units": 220,
+    "ai_reason_units": 220,
+    "ai_suggestion_units": 220,
+    "ai_validation_mismatches": 0,
+    "bootstrap_sample_n": 22
+  },
+  "metrics": {
+    "child_env_scene": {
+      "n": 22,
+      "ke": 0.6063979864120483,
+      "mean_radius": 0.3806729018688202,
+      "median_radius": 0.3767406940460205,
+      "p95_radius": 0.5935816794633865
+    },
+    "child_scene_all": {
+      "n": 22,
+      "ke": 0.6149616837501526,
+      "mean_radius": 0.3385425806045532,
+      "median_radius": 0.3123859465122223,
+      "p95_radius": 0.5287424147129058
+    },
+    "child_direct_segments": {
+      "n": 331,
+      "ke": 0.8631700277328491,
+      "mean_radius": 0.7245103120803833,
+      "median_radius": 0.723503828048706,
+      "p95_radius": 0.7996731996536255
+    },
+    "child_meta_segments": {
+      "n": 132,
+      "ke": 0.861068844795227,
+      "mean_radius": 0.6963372230529785,
+      "median_radius": 0.7053170204162598,
+      "p95_radius": 0.7896396040916442
+    },
+    "ai_combined": {
+      "n": 220,
+      "ke": 0.7164937257766724,
+      "mean_radius": 0.5155149698257446,
+      "median_radius": 0.5065745711326599,
+      "p95_radius": 0.6498188227415085
+    },
+    "ai_reason": {
+      "n": 220,
+      "ke": 0.7689676284790039,
+      "mean_radius": 0.566194474697113,
+      "median_radius": 0.5645954608917236,
+      "p95_radius": 0.7127825081348418
+    },
+    "ai_suggestion": {
+      "n": 220,
+      "ke": 0.7611297965049744,
+      "mean_radius": 0.5673171281814575,
+      "median_radius": 0.5599509477615356,
+      "p95_radius": 0.7058979868888855
+    }
+  },
+  "bootstrap_ci": {
+    "儿童环境场景": {
+      "ke": [
+        0.6063979864120483,
+        0.6063979864120483
+      ],
+      "p95_radius": [
+        0.5935816794633865,
+        0.5935816794633865
+      ],
+      "mean_radius": [
+        0.3806729018688202,
+        0.38067296147346497
+      ]
+    },
+    "AI图像合并": {
+      "ke": [
+        0.5772404208779335,
+        0.7103441566228866
+      ],
+      "p95_radius": [
+        0.556737802028656,
+        0.6687113384902477
+      ],
+      "mean_radius": [
+        0.4777082599699497,
+        0.5339807778596878
+      ]
+    },
+    "AI Reason": {
+      "ke": [
+        0.651675871014595,
+        0.7612085595726966
+      ],
+      "p95_radius": [
+        0.6219751081615686,
+        0.7232749148458242
+      ],
+      "mean_radius": [
+        0.5195240497589111,
+        0.5883060947060585
+      ]
+    },
+    "AI Suggestion": {
+      "ke": [
+        0.6270311698317528,
+        0.7608756110072136
+      ],
+      "p95_radius": [
+        0.607652204707265,
+        0.7176912573724985
+      ],
+      "mean_radius": [
+        0.5266111105680465,
+        0.5843957245349884
+      ]
+    }
+  },
+  "primary_comparison": {
+    "group_a": "child_env_scene",
+    "group_b": "ai_combined",
+    "centroid_distance": 0.7002944946289062,
+    "permutation_p_value": 0.000999000999000999,
+    "permutation_null_ci": [
+      0.09566432610154152,
+      0.15770165026187896
+    ],
+    "child_to_ai_nn_mean": 0.6819470524787903,
+    "child_to_ai_nn_median": 0.7006329298019409,
+    "ai_to_child_nn_mean": 0.6434664130210876,
+    "ai_to_child_nn_median": 0.6454017162322998
+  },
+  "keyword_contrast": [
+    {
+      "term": "智能",
+      "child_count": 0,
+      "ai_count": 133,
+      "log_ratio": -3.553900063618602
+    },
+    {
+      "term": "创意",
+      "child_count": 0,
+      "ai_count": 56,
+      "log_ratio": -2.694039223930693
+    },
+    {
+      "term": "空气清新",
+      "child_count": 1,
+      "ai_count": 132,
+      "log_ratio": -2.447768942536465
+    },
+    {
+      "term": "宽敞",
+      "child_count": 0,
+      "ai_count": 33,
+      "log_ratio": -2.1713440246093185
+    },
+    {
+      "term": "店铺",
+      "child_count": 0,
+      "ai_count": 19,
+      "log_ratio": -1.630213051347999
+    },
+    {
+      "term": "探索",
+      "child_count": 6,
+      "ai_count": 235,
+      "log_ratio": -1.5565601417732338
+    },
+    {
+      "term": "干净",
+      "child_count": 2,
+      "ai_count": 81,
+      "log_ratio": -1.4509636935910146
+    },
+    {
+      "term": "拥挤",
+      "child_count": 0,
+      "ai_count": 10,
+      "log_ratio": -1.0111738429417754
+    },
+    {
+      "term": "互动",
+      "child_count": 19,
+      "ai_count": 376,
+      "log_ratio": -0.9271549868885998
+    },
+    {
+      "term": "导览",
+      "child_count": 3,
+      "ai_count": 41,
+      "log_ratio": -0.4395818639596367
+    },
+    {
+      "term": "设施",
+      "child_count": 21,
+      "ai_count": 234,
+      "log_ratio": -0.3560540579710696
+    },
+    {
+      "term": "安全",
+      "child_count": 23,
+      "ai_count": 242,
+      "log_ratio": -0.30065269444577725
+    },
+    {
+      "term": "绿化",
+      "child_count": 18,
+      "ai_count": 189,
+      "log_ratio": -0.2932696976565543
+    },
+    {
+      "term": "游戏",
+      "child_count": 11,
+      "ai_count": 110,
+      "log_ratio": -0.22931989080695558
+    },
+    {
+      "term": "吸引",
+      "child_count": 5,
+      "ai_count": 49,
+      "log_ratio": -0.16387598255457192
+    },
+    {
+      "term": "座椅",
+      "child_count": 0,
+      "ai_count": 4,
+      "log_ratio": -0.16387598255457192
+    },
+    {
+      "term": "数字",
+      "child_count": 29,
+      "ai_count": 234,
+      "log_ratio": -0.03971672975891272
+    },
+    {
+      "term": "喷泉",
+      "child_count": 2,
+      "ai_count": 17,
+      "log_ratio": 0.08743844572633463
+    },
+    {
+      "term": "友好",
+      "child_count": 8,
+      "ai_count": 45,
+      "log_ratio": 0.3557024323210136
+    },
+    {
+      "term": "交通",
+      "child_count": 3,
+      "ai_count": 15,
+      "log_ratio": 0.5452715393518144
+    },
+    {
+      "term": "涂鸦",
+      "child_count": 19,
+      "ai_count": 82,
+      "log_ratio": 0.5909647670107132
+    },
+    {
+      "term": "护栏",
+      "child_count": 6,
+      "ai_count": 22,
+      "log_ratio": 0.7916354624728643
+    },
+    {
+      "term": "遮阳",
+      "child_count": 2,
+      "ai_count": 8,
+      "log_ratio": 0.8095731631595315
+    },
+    {
+      "term": "玩具",
+      "child_count": 0,
+      "ai_count": 1,
+      "log_ratio": 0.9347363061135381
+    },
+    {
+      "term": "电动车",
+      "child_count": 5,
+      "ai_count": 15,
+      "log_ratio": 0.9972566630948716
+    },
+    {
+      "term": "监控",
+      "child_count": 11,
+      "ai_count": 12,
+      "log_ratio": 1.9499669858425968
+    },
+    {
+      "term": "手机",
+      "child_count": 7,
+      "ai_count": 7,
+      "log_ratio": 2.0333485947816476
+    },
+    {
+      "term": "好玩",
+      "child_count": 4,
+      "ai_count": 2,
+      "log_ratio": 2.621135259683766
+    },
+    {
+      "term": "落叶",
+      "child_count": 4,
+      "ai_count": 2,
+      "log_ratio": 2.621135259683766
+    },
+    {
+      "term": "长椅",
+      "child_count": 4,
+      "ai_count": 2,
+      "log_ratio": 2.621135259683766
+    },
+    {
+      "term": "停车",
+      "child_count": 5,
+      "ai_count": 2,
+      "log_ratio": 2.8218059551459174
+    },
+    {
+      "term": "栏杆",
+      "child_count": 13,
+      "ai_count": 5,
+      "log_ratio": 2.9312901879876065
+    },
+    {
+      "term": "图书馆",
+      "child_count": 9,
+      "ai_count": 3,
+      "log_ratio": 3.031877424892774
+    },
+    {
+      "term": "充电",
+      "child_count": 1,
+      "ai_count": 0,
+      "log_ratio": 3.131960883449757
+    },
+    {
+      "term": "厕所",
+      "child_count": 1,
+      "ai_count": 0,
+      "log_ratio": 3.131960883449757
+    },
+    {
+      "term": "日常",
+      "child_count": 1,
+      "ai_count": 0,
+      "log_ratio": 3.131960883449757
+    },
+    {
+      "term": "死板",
+      "child_count": 1,
+      "ai_count": 0,
+      "log_ratio": 3.131960883449757
+    },
+    {
+      "term": "生活",
+      "child_count": 1,
+      "ai_count": 0,
+      "log_ratio": 3.131960883449757
+    },
+    {
+      "term": "阴暗",
+      "child_count": 1,
+      "ai_count": 0,
+      "log_ratio": 3.131960883449757
+    },
+    {
+      "term": "马路",
+      "child_count": 4,
+      "ai_count": 1,
+      "log_ratio": 3.131960883449757
+    },
+    {
+      "term": "危险",
+      "child_count": 9,
+      "ai_count": 2,
+      "log_ratio": 3.368349661513987
+    },
+    {
+      "term": "自行车",
+      "child_count": 13,
+      "ai_count": 3,
+      "log_ratio": 3.383275311730663
+    },
+    {
+      "term": "恐怖",
+      "child_count": 2,
+      "ai_count": 0,
+      "log_ratio": 3.6427865072157477
+    },
+    {
+      "term": "观赏",
+      "child_count": 2,
+      "ai_count": 0,
+      "log_ratio": 3.6427865072157477
+    },
+    {
+      "term": "商业街",
+      "child_count": 3,
+      "ai_count": 0,
+      "log_ratio": 3.9792587438369607
+    },
+    {
+      "term": "实用",
+      "child_count": 3,
+      "ai_count": 0,
+      "log_ratio": 3.9792587438369607
+    },
+    {
+      "term": "偏僻",
+      "child_count": 4,
+      "ai_count": 0,
+      "log_ratio": 4.230573172117866
+    },
+    {
+      "term": "学校",
+      "child_count": 4,
+      "ai_count": 0,
+      "log_ratio": 4.230573172117866
+    },
+    {
+      "term": "商场",
+      "child_count": 6,
+      "ai_count": 0,
+      "log_ratio": 4.598297952243184
+    }
+  ],
+  "figures": {
+    "t-SNE 诊断图": "S:\\LLMs\\Qwen3VL-children\\Paper2_T-SNE_pipeline\\data\\figures_v2\\Fig_v2_tsne_diagnostic.png",
+    "高维知识广度": "S:\\LLMs\\Qwen3VL-children\\Paper2_T-SNE_pipeline\\data\\figures_v2\\Fig_v2_highdim_extent.png",
+    "质心距离矩阵": "S:\\LLMs\\Qwen3VL-children\\Paper2_T-SNE_pipeline\\data\\figures_v2\\Fig_v2_centroid_heatmap.png",
+    "关键词差异": "S:\\LLMs\\Qwen3VL-children\\Paper2_T-SNE_pipeline\\data\\figures_v2\\Fig_v2_keyword_contrast.png"
+  }
+}
