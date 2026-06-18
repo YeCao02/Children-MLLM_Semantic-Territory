@@ -1,0 +1,11 @@
+# Install these in the existing WSL `llm` environment if they are missing.
+torch>=2.4
+transformers>=4.45,<5
+sentencepiece
+protobuf
+numpy
+pandas
+scipy
+scikit-learn
+matplotlib
+seaborn

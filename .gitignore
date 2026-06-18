@@ -7,6 +7,7 @@ data/corpus_ai.json
 data/*.pkl
 data/model_texts.pkl
 data/embeddings.pkl
+data/affective_predictions.pkl
 *.gguf
 
 # Python runtime artifacts
@@ -20,4 +21,3 @@ __pycache__/
 Thumbs.db
 .idea/
 .vscode/
-

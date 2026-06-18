@@ -1,0 +1,733 @@
+{
+  "method": {
+    "primary_text_unit": "utterance; AI combined is reason + suggestion per image",
+    "interpretation_boundary": "Predictions describe affective cues expressed in text, not participants' latent emotions.",
+    "common_dimensions": [
+      "positive_engagement",
+      "concern_distress",
+      "inquiry_surprise",
+      "neutral"
+    ],
+    "main_model": "Johnson8187/Chinese-Emotion-Small",
+    "main_model_revision": "2c04ce86de44d232f0fbe31413868eb31d791aea",
+    "robustness_model": "tabularisai/multilingual-emotion-classification",
+    "robustness_model_revision": "51d5d73525c1d5f3e599e4b94a4cd6e69e2c9d6a",
+    "robustness_model_license": "CC-BY-NC-4.0"
+  },
+  "main_model": {
+    "groups": {
+      "children_direct": {
+        "n": 331,
+        "mean_raw_probabilities": {
+          "neutral": 0.5963343381881714,
+          "concerned": 0.09168919175863266,
+          "happy": 0.014728466980159283,
+          "angry": 0.026973703876137733,
+          "sad": 0.11415397375822067,
+          "questioning": 0.07455708086490631,
+          "surprised": 0.035009726881980896,
+          "disgusted": 0.04655379429459572
+        },
+        "dominant_label_proportions": {
+          "neutral": 0.6344410876132931,
+          "concerned": 0.09063444108761329,
+          "happy": 0.006042296072507553,
+          "angry": 0.021148036253776436,
+          "sad": 0.11782477341389729,
+          "questioning": 0.06042296072507553,
+          "surprised": 0.03323262839879154,
+          "disgusted": 0.03625377643504532
+        },
+        "mean_common_profile": {
+          "positive_engagement": 0.014728466980159283,
+          "concern_distress": 0.27937063574790955,
+          "inquiry_surprise": 0.1095668375492096,
+          "neutral": 0.5963343381881714
+        },
+        "mean_common_entropy": 0.5626873970031738
+      },
+      "children_meta": {
+        "n": 132,
+        "mean_raw_probabilities": {
+          "neutral": 0.3855040669441223,
+          "concerned": 0.10832039266824722,
+          "happy": 0.009055760689079762,
+          "angry": 0.09473895281553268,
+          "sad": 0.10721457004547119,
+          "questioning": 0.1909329891204834,
+          "surprised": 0.050353359431028366,
+          "disgusted": 0.05387992784380913
+        },
+        "dominant_label_proportions": {
+          "neutral": 0.42424242424242425,
+          "concerned": 0.11363636363636363,
+          "happy": 0.0,
+          "angry": 0.10606060606060606,
+          "sad": 0.10606060606060606,
+          "questioning": 0.1893939393939394,
+          "surprised": 0.022727272727272728,
+          "disgusted": 0.03787878787878788
+        },
+        "mean_common_profile": {
+          "positive_engagement": 0.009055758826434612,
+          "concern_distress": 0.36415374279022217,
+          "inquiry_surprise": 0.24128641188144684,
+          "neutral": 0.3855040967464447
+        },
+        "mean_common_entropy": 0.7872457504272461
+      },
+      "ai_reason": {
+        "n": 220,
+        "mean_raw_probabilities": {
+          "neutral": 0.8647958636283875,
+          "concerned": 0.005744778551161289,
+          "happy": 0.03900270164012909,
+          "angry": 0.0022170732263475657,
+          "sad": 0.017170879989862442,
+          "questioning": 0.00273609790019691,
+          "surprised": 0.021583519876003265,
+          "disgusted": 0.046749014407396317
+        },
+        "dominant_label_proportions": {
+          "neutral": 0.9363636363636364,
+          "concerned": 0.0,
+          "happy": 0.004545454545454545,
+          "angry": 0.0,
+          "sad": 0.0,
+          "questioning": 0.0,
+          "surprised": 0.00909090909090909,
+          "disgusted": 0.05
+        },
+        "mean_common_profile": {
+          "positive_engagement": 0.03900270164012909,
+          "concern_distress": 0.0718817263841629,
+          "inquiry_surprise": 0.024319622665643692,
+          "neutral": 0.8647958636283875
+        },
+        "mean_common_entropy": 0.41035157442092896
+      },
+      "ai_suggestion": {
+        "n": 220,
+        "mean_raw_probabilities": {
+          "neutral": 0.976664662361145,
+          "concerned": 0.0022296567913144827,
+          "happy": 0.012645011767745018,
+          "angry": 0.0001998686493607238,
+          "sad": 0.0014118028338998556,
+          "questioning": 0.003205332439392805,
+          "surprised": 0.003093720180913806,
+          "disgusted": 0.000549842428881675
+        },
+        "dominant_label_proportions": {
+          "neutral": 1.0,
+          "concerned": 0.0,
+          "happy": 0.0,
+          "angry": 0.0,
+          "sad": 0.0,
+          "questioning": 0.0,
+          "surprised": 0.0,
+          "disgusted": 0.0
+        },
+        "mean_common_profile": {
+          "positive_engagement": 0.012645011767745018,
+          "concern_distress": 0.004391171503812075,
+          "inquiry_surprise": 0.006299052387475967,
+          "neutral": 0.9766647219657898
+        },
+        "mean_common_entropy": 0.18368561565876007
+      },
+      "ai_combined": {
+        "n": 220,
+        "mean_raw_probabilities": {
+          "neutral": 0.8305768370628357,
+          "concerned": 0.10238669812679291,
+          "happy": 0.016345033422112465,
+          "angry": 0.0006722266552969813,
+          "sad": 0.03854145109653473,
+          "questioning": 0.006166253238916397,
+          "surprised": 0.002016655867919326,
+          "disgusted": 0.003294858615845442
+        },
+        "dominant_label_proportions": {
+          "neutral": 0.8954545454545455,
+          "concerned": 0.09545454545454546,
+          "happy": 0.0,
+          "angry": 0.0,
+          "sad": 0.00909090909090909,
+          "questioning": 0.0,
+          "surprised": 0.0,
+          "disgusted": 0.0
+        },
+        "mean_common_profile": {
+          "positive_engagement": 0.016345033422112465,
+          "concern_distress": 0.14489522576332092,
+          "inquiry_surprise": 0.008182904683053493,
+          "neutral": 0.8305768966674805
+        },
+        "mean_common_entropy": 0.49396979808807373
+      }
+    },
+    "comparisons": {
+      "ai_reason": {
+        "centroid_distance": 0.35068443417549133,
+        "permutation_p": 0.0004997501249375312,
+        "null_ci95": [
+          0.008911962644197047,
+          0.09312241170555352
+        ],
+        "js_divergence": 0.09039357609445532,
+        "dimension_deltas": {
+          "positive_engagement": {
+            "delta_ai_minus_children": 0.02427421696484089,
+            "ci95": [
+              0.013134015537798405,
+              0.03572404338046908
+            ]
+          },
+          "concern_distress": {
+            "delta_ai_minus_children": -0.20748889446258545,
+            "ci95": [
+              -0.2543040387332439,
+              -0.15993062034249306
+            ]
+          },
+          "inquiry_surprise": {
+            "delta_ai_minus_children": -0.08524718880653381,
+            "ci95": [
+              -0.11134945433586836,
+              -0.06089448984712364
+            ]
+          },
+          "neutral": {
+            "delta_ai_minus_children": 0.26846176385879517,
+            "ci95": [
+              0.21231120973825454,
+              0.32037225663661956
+            ]
+          }
+        }
+      },
+      "ai_suggestion": {
+        "centroid_distance": 0.48055538535118103,
+        "permutation_p": 0.0004997501249375312,
+        "null_ci95": [
+          0.007897447049617767,
+          0.09334836304187771
+        ],
+        "js_divergence": 0.19937247885223136,
+        "dimension_deltas": {
+          "positive_engagement": {
+            "delta_ai_minus_children": -0.002083461731672287,
+            "ci95": [
+              -0.009937005350366235,
+              0.004045984346885231
+            ]
+          },
+          "concern_distress": {
+            "delta_ai_minus_children": -0.27497947216033936,
+            "ci95": [
+              -0.315095678716898,
+              -0.23466028831899166
+            ]
+          },
+          "inquiry_surprise": {
+            "delta_ai_minus_children": -0.10326775908470154,
+            "ci95": [
+              -0.1277315005660057,
+              -0.0796749845147133
+            ]
+          },
+          "neutral": {
+            "delta_ai_minus_children": 0.3803306818008423,
+            "ci95": [
+              0.3355031877756119,
+              0.4255252957344055
+            ]
+          }
+        }
+      },
+      "ai_combined": {
+        "centroid_distance": 0.2885039448738098,
+        "permutation_p": 0.0004997501249375312,
+        "null_ci95": [
+          0.007400177349336445,
+          0.09661205224692815
+        ],
+        "js_divergence": 0.06704640454296079,
+        "dimension_deltas": {
+          "positive_engagement": {
+            "delta_ai_minus_children": 0.0016165543347597122,
+            "ci95": [
+              -0.0057701895013451574,
+              0.007799071562476455
+            ]
+          },
+          "concern_distress": {
+            "delta_ai_minus_children": -0.13447540998458862,
+            "ci95": [
+              -0.1825812291353941,
+              -0.08496735952794554
+            ]
+          },
+          "inquiry_surprise": {
+            "delta_ai_minus_children": -0.10138390958309174,
+            "ci95": [
+              -0.1258826047182083,
+              -0.07926907185465099
+            ]
+          },
+          "neutral": {
+            "delta_ai_minus_children": 0.2342427372932434,
+            "ci95": [
+              0.18009477257728576,
+              0.2878949001431465
+            ]
+          }
+        }
+      }
+    }
+  },
+  "robustness_model": {
+    "groups": {
+      "children_direct": {
+        "n": 331,
+        "mean_raw_probabilities": {
+          "anger": 0.021904323250055313,
+          "contempt": 0.05697965994477272,
+          "disgust": 0.03953647240996361,
+          "fear": 0.08647317439317703,
+          "frustration": 0.017412079498171806,
+          "gratitude": 0.002476295456290245,
+          "joy": 0.008233537897467613,
+          "love": 0.025254493579268456,
+          "neutral": 0.8118675351142883,
+          "sadness": 0.020170951262116432,
+          "surprise": 0.009268898516893387
+        },
+        "dominant_label_proportions": {
+          "anger": 0.00906344410876133,
+          "contempt": 0.01812688821752266,
+          "disgust": 0.02416918429003021,
+          "fear": 0.0755287009063444,
+          "frustration": 0.0030211480362537764,
+          "gratitude": 0.0,
+          "joy": 0.0030211480362537764,
+          "love": 0.027190332326283987,
+          "neutral": 0.8398791540785498,
+          "sadness": 0.0,
+          "surprise": 0.0
+        },
+        "mean_common_profile": {
+          "positive_engagement": 0.03599262237548828,
+          "concern_distress": 0.19967390596866608,
+          "inquiry_surprise": 0.008656383492052555,
+          "neutral": 0.7556772828102112
+        },
+        "mean_common_entropy": 0.5586829781532288
+      },
+      "children_meta": {
+        "n": 132,
+        "mean_raw_probabilities": {
+          "anger": 0.02274238131940365,
+          "contempt": 0.13911636173725128,
+          "disgust": 0.013913641683757305,
+          "fear": 0.019856497645378113,
+          "frustration": 0.032153937965631485,
+          "gratitude": 0.00986352190375328,
+          "joy": 0.0055597517639398575,
+          "love": 0.006122449412941933,
+          "neutral": 0.851997971534729,
+          "sadness": 0.02371438592672348,
+          "surprise": 0.012130954302847385
+        },
+        "dominant_label_proportions": {
+          "anger": 0.0,
+          "contempt": 0.05303030303030303,
+          "disgust": 0.0,
+          "fear": 0.015151515151515152,
+          "frustration": 0.0,
+          "gratitude": 0.007575757575757576,
+          "joy": 0.0,
+          "love": 0.0,
+          "neutral": 0.9090909090909091,
+          "sadness": 0.007575757575757576,
+          "surprise": 0.007575757575757576
+        },
+        "mean_common_profile": {
+          "positive_engagement": 0.02038302645087242,
+          "concern_distress": 0.1962122768163681,
+          "inquiry_surprise": 0.011051641777157784,
+          "neutral": 0.7723530530929565
+        },
+        "mean_common_entropy": 0.6298601627349854
+      },
+      "ai_reason": {
+        "n": 220,
+        "mean_raw_probabilities": {
+          "anger": 0.0025558590423315763,
+          "contempt": 0.005992426071316004,
+          "disgust": 0.00575298722833395,
+          "fear": 0.0025996023323386908,
+          "frustration": 0.005092988722026348,
+          "gratitude": 0.0018536752322688699,
+          "joy": 0.006506956182420254,
+          "love": 0.001627874094992876,
+          "neutral": 0.9911453723907471,
+          "sadness": 0.0036266930401325226,
+          "surprise": 0.0019267944153398275
+        },
+        "dominant_label_proportions": {
+          "anger": 0.0,
+          "contempt": 0.0,
+          "disgust": 0.0,
+          "fear": 0.0,
+          "frustration": 0.0,
+          "gratitude": 0.0,
+          "joy": 0.0,
+          "love": 0.0,
+          "neutral": 1.0,
+          "sadness": 0.0,
+          "surprise": 0.0
+        },
+        "mean_common_profile": {
+          "positive_engagement": 0.009714941494166851,
+          "concern_distress": 0.024826450273394585,
+          "inquiry_surprise": 0.0018732076277956367,
+          "neutral": 0.9635854363441467
+        },
+        "mean_common_entropy": 0.2627602219581604
+      },
+      "ai_suggestion": {
+        "n": 220,
+        "mean_raw_probabilities": {
+          "anger": 0.002730540232732892,
+          "contempt": 0.004930760711431503,
+          "disgust": 0.0038122208788990974,
+          "fear": 0.0027682515792548656,
+          "frustration": 0.006893714424222708,
+          "gratitude": 0.0011890821624547243,
+          "joy": 0.004616130143404007,
+          "love": 0.0015772950137034059,
+          "neutral": 0.9888015985488892,
+          "sadness": 0.004203231073915958,
+          "surprise": 0.0035677950363606215
+        },
+        "dominant_label_proportions": {
+          "anger": 0.0,
+          "contempt": 0.0,
+          "disgust": 0.0,
+          "fear": 0.0,
+          "frustration": 0.0,
+          "gratitude": 0.0,
+          "joy": 0.0,
+          "love": 0.0,
+          "neutral": 1.0,
+          "sadness": 0.0,
+          "surprise": 0.0
+        },
+        "mean_common_profile": {
+          "positive_engagement": 0.007200076710432768,
+          "concern_distress": 0.024658238515257835,
+          "inquiry_surprise": 0.003480964107438922,
+          "neutral": 0.9646607637405396
+        },
+        "mean_common_entropy": 0.2592495083808899
+      },
+      "ai_combined": {
+        "n": 220,
+        "mean_raw_probabilities": {
+          "anger": 0.0025634411722421646,
+          "contempt": 0.005001238081604242,
+          "disgust": 0.005112391896545887,
+          "fear": 0.002359392587095499,
+          "frustration": 0.005040095187723637,
+          "gratitude": 0.001934438361786306,
+          "joy": 0.00636734114959836,
+          "love": 0.0015824268339201808,
+          "neutral": 0.9910587668418884,
+          "sadness": 0.0032921733800321817,
+          "surprise": 0.0022882241755723953
+        },
+        "dominant_label_proportions": {
+          "anger": 0.0,
+          "contempt": 0.0,
+          "disgust": 0.0,
+          "fear": 0.0,
+          "frustration": 0.0,
+          "gratitude": 0.0,
+          "joy": 0.0,
+          "love": 0.0,
+          "neutral": 1.0,
+          "sadness": 0.0,
+          "surprise": 0.0
+        },
+        "mean_common_profile": {
+          "positive_engagement": 0.00963000301271677,
+          "concern_distress": 0.022722208872437477,
+          "inquiry_surprise": 0.0022290493361651897,
+          "neutral": 0.965418815612793
+        },
+        "mean_common_entropy": 0.2553427219390869
+      }
+    },
+    "comparisons": {
+      "ai_reason": {
+        "centroid_distance": 0.2730090916156769,
+        "permutation_p": 0.0004997501249375312,
+        "null_ci95": [
+          0.0048807524144649506,
+          0.06551485843956469
+        ],
+        "js_divergence": 0.0725330488153645,
+        "dimension_deltas": {
+          "positive_engagement": {
+            "delta_ai_minus_children": -0.026277676224708557,
+            "ci95": [
+              -0.040501664765179156,
+              -0.013110593124292792
+            ]
+          },
+          "concern_distress": {
+            "delta_ai_minus_children": -0.17484742403030396,
+            "ci95": [
+              -0.20557138025760652,
+              -0.1471952199935913
+            ]
+          },
+          "inquiry_surprise": {
+            "delta_ai_minus_children": -0.00678317341953516,
+            "ci95": [
+              -0.010429389984346926,
+              -0.0039049736165907276
+            ]
+          },
+          "neutral": {
+            "delta_ai_minus_children": 0.2079082727432251,
+            "ci95": [
+              0.17688242048025132,
+              0.24017362147569657
+            ]
+          }
+        }
+      },
+      "ai_suggestion": {
+        "centroid_distance": 0.2741539180278778,
+        "permutation_p": 0.0004997501249375312,
+        "null_ci95": [
+          0.004832966311369091,
+          0.06321831475943324
+        ],
+        "js_divergence": 0.07367786745420629,
+        "dimension_deltas": {
+          "positive_engagement": {
+            "delta_ai_minus_children": -0.028792541474103928,
+            "ci95": [
+              -0.0435623237863183,
+              -0.01543443601112813
+            ]
+          },
+          "concern_distress": {
+            "delta_ai_minus_children": -0.1750156581401825,
+            "ci95": [
+              -0.20370216369628907,
+              -0.14739260822534564
+            ]
+          },
+          "inquiry_surprise": {
+            "delta_ai_minus_children": -0.005175416357815266,
+            "ci95": [
+              -0.009015857195481657,
+              -0.002341077080927793
+            ]
+          },
+          "neutral": {
+            "delta_ai_minus_children": 0.20898360013961792,
+            "ci95": [
+              0.17717116177082062,
+              0.2409021437168121
+            ]
+          }
+        }
+      },
+      "ai_combined": {
+        "centroid_distance": 0.275752991437912,
+        "permutation_p": 0.0004997501249375312,
+        "null_ci95": [
+          0.004278496897313744,
+          0.06442649029195308
+        ],
+        "js_divergence": 0.07483997572391765,
+        "dimension_deltas": {
+          "positive_engagement": {
+            "delta_ai_minus_children": -0.026362616568803787,
+            "ci95": [
+              -0.04155625710263848,
+              -0.013449192722328007
+            ]
+          },
+          "concern_distress": {
+            "delta_ai_minus_children": -0.17695167660713196,
+            "ci95": [
+              -0.20627173148095607,
+              -0.1484102863818407
+            ]
+          },
+          "inquiry_surprise": {
+            "delta_ai_minus_children": -0.006427330896258354,
+            "ci95": [
+              -0.01033602557145059,
+              -0.00346162551431917
+            ]
+          },
+          "neutral": {
+            "delta_ai_minus_children": 0.20974165201187134,
+            "ci95": [
+              0.17865402847528458,
+              0.24220149964094162
+            ]
+          }
+        }
+      }
+    }
+  },
+  "anchor_diagnostic": {
+    "main": {
+      "overall_match_rate": 0.6875,
+      "per_class_match_rate": {
+        "positive_engagement": 0.75,
+        "concern_distress": 0.25,
+        "inquiry_surprise": 0.75,
+        "neutral": 1.0
+      },
+      "predicted_labels": [
+        "positive_engagement",
+        "neutral",
+        "positive_engagement",
+        "positive_engagement",
+        "neutral",
+        "neutral",
+        "concern_distress",
+        "neutral",
+        "inquiry_surprise",
+        "inquiry_surprise",
+        "inquiry_surprise",
+        "concern_distress",
+        "neutral",
+        "neutral",
+        "neutral",
+        "neutral"
+      ]
+    },
+    "robustness": {
+      "overall_match_rate": 0.6875,
+      "per_class_match_rate": {
+        "positive_engagement": 0.5,
+        "concern_distress": 1.0,
+        "inquiry_surprise": 0.25,
+        "neutral": 1.0
+      },
+      "predicted_labels": [
+        "positive_engagement",
+        "neutral",
+        "positive_engagement",
+        "neutral",
+        "concern_distress",
+        "concern_distress",
+        "concern_distress",
+        "concern_distress",
+        "neutral",
+        "neutral",
+        "inquiry_surprise",
+        "concern_distress",
+        "neutral",
+        "neutral",
+        "neutral",
+        "neutral"
+      ]
+    }
+  },
+  "cross_model_directional_agreement": {
+    "ai_reason": {
+      "sign_agreement": 0.75,
+      "delta_cosine_similarity": 0.9612971544265747,
+      "main_delta": {
+        "positive_engagement": 0.024274233728647232,
+        "concern_distress": -0.20748890936374664,
+        "inquiry_surprise": -0.0852472186088562,
+        "neutral": 0.26846152544021606
+      },
+      "robustness_delta": {
+        "positive_engagement": -0.026277679949998856,
+        "concern_distress": -0.17484745383262634,
+        "inquiry_surprise": -0.006783175747841597,
+        "neutral": 0.20790815353393555
+      }
+    },
+    "ai_suggestion": {
+      "sign_agreement": 1.0,
+      "delta_cosine_similarity": 0.9731057286262512,
+      "main_delta": {
+        "positive_engagement": -0.0020834552124142647,
+        "concern_distress": -0.27497947216033936,
+        "inquiry_surprise": -0.10326778888702393,
+        "neutral": 0.3803303837776184
+      },
+      "robustness_delta": {
+        "positive_engagement": -0.028792545199394226,
+        "concern_distress": -0.1750156730413437,
+        "inquiry_surprise": -0.0051754191517829895,
+        "neutral": 0.20898348093032837
+      }
+    },
+    "ai_combined": {
+      "sign_agreement": 0.75,
+      "delta_cosine_similarity": 0.9243202209472656,
+      "main_delta": {
+        "positive_engagement": 0.0016165664419531822,
+        "concern_distress": -0.13447540998458862,
+        "inquiry_surprise": -0.10138393193483353,
+        "neutral": 0.23424255847930908
+      },
+      "robustness_delta": {
+        "positive_engagement": -0.026362620294094086,
+        "concern_distress": -0.17695169150829315,
+        "inquiry_surprise": -0.006427334155887365,
+        "neutral": 0.2097415328025818
+      }
+    }
+  },
+  "semantic_affective_alignment": {
+    "semantic_overlap_threshold": 0.6260176301002502,
+    "affective_overlap_threshold": 0.6818012521496285,
+    "group_means": {
+      "ai_combined": {
+        "semantic_overlap": 0.670183539390564,
+        "affective_overlap": 0.7003589666288551
+      },
+      "children_direct": {
+        "semantic_overlap": 0.547505795955658,
+        "affective_overlap": 0.701279866374456
+      }
+    },
+    "quadrant_proportions": {
+      "children_direct": {
+        "shared_semantic_and_affective": 0.1661631419939577,
+        "semantic_only": 0.08459214501510574,
+        "affective_only": 0.38972809667673713,
+        "distinctive_both": 0.3595166163141994
+      },
+      "ai_combined": {
+        "shared_semantic_and_affective": 0.36363636363636365,
+        "semantic_only": 0.5136363636363637,
+        "affective_only": 0.05454545454545454,
+        "distinctive_both": 0.06818181818181818
+      }
+    },
+    "affective_profile_source": "Mean of the Chinese-specific and multilingual models in the four common dimensions."
+  },
+  "figures": {
+    "main_profiles": "data/figures_affect/Fig_affect_main_profiles.png",
+    "model_robustness": "data/figures_affect/Fig_affect_model_robustness.png",
+    "semantic_affective_alignment": "data/figures_affect/Fig_semantic_affective_alignment.png"
+  }
+}

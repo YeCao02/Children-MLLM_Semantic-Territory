@@ -8,6 +8,7 @@ Raw or large local files are intentionally excluded from git:
 - `corpus_children.json`: extracted child interview corpus.
 - `corpus_ai.json`: extracted AI reason/suggestion corpus.
 - `embeddings.pkl`: Qwen3-Embedding-8B vectors.
+- `affective_predictions.pkl`: per-text probabilities from the two affect classifiers.
 
 Expected `model_texts.pkl` structure:
 
@@ -15,5 +16,5 @@ Expected `model_texts.pkl` structure:
 - each value is a pandas DataFrame;
 - required columns: `image`, `model`, `lang`, `prompt`, `run_id`, `reason`, `suggestion`.
 
-The public repository includes only placeholders, scripts, derived figures and summary reports.
-
+The public repository includes only placeholders, scripts, derived figures and aggregate
+summary metrics. Per-text affect predictions are intentionally ignored.

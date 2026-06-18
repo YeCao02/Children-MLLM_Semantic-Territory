@@ -23,6 +23,10 @@ The method is inspired by Hao et al. (2026), *Artificial intelligence tools expa
   Generates a Hao-style AI-children semantic territory map.
 - `scripts/07_build_full_semantic_territory_report.py`  
   Builds the comprehensive HTML report.
+- `scripts/08_affective_alignment.py`
+  Runs dual-model Chinese affect classification, robustness checks and semantic-affective alignment.
+- `scripts/run_affective_alignment_wsl.sh`
+  Runs the affective module and rebuilds the report in the existing WSL `llm` environment.
 - `docs/`  
   Method notes and implementation documentation.
 - `data/figures/` and `data/figures_v2/`  
@@ -72,6 +76,16 @@ python scripts/06_make_hao_style_visual.py
 python scripts/07_build_full_semantic_territory_report.py
 ```
 
+Run the semantic-affective module in WSL:
+
+```bash
+cd /mnt/s/LLMs/Qwen3VL-children/Paper2_T-SNE_pipeline
+bash scripts/run_affective_alignment_wsl.sh
+```
+
+The script uses `/home/rk/miniconda3/envs/llm/bin/python` by default. Hugging Face
+weights are cached under `/home/rk/.cache/huggingface` and are not committed.
+
 Primary report:
 
 - `Children_MLLM_Semantic_Territory_Full_Report.html`
@@ -84,3 +98,13 @@ The recommended paper framing is not simply "AI differs from children." A strong
 
 The Hao-style visualization is explanatory. Formal claims should rely on high-dimensional Qwen3 embedding metrics rather than t-SNE area.
 
+## Affective Analysis
+
+The affective module uses `Johnson8187/Chinese-Emotion-Small` as a Chinese-specific
+classifier and `tabularisai/multilingual-emotion-classification` as a robustness model.
+Their different labels are mapped to four shared dimensions: positive engagement,
+concern/distress, inquiry/surprise and neutral expression.
+
+Predictions represent affective cues expressed in text. They are not measurements of a
+child's internal emotion, mental health or stable disposition. Fine-grained claims require
+human-coded validation.
