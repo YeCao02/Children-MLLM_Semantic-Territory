@@ -26,11 +26,45 @@ def metric(value: float | int | str, digits: int = 3) -> str:
     return str(value)
 
 
+def directional_coverage_explanation(cov_nn: dict, tau_065: dict) -> str:
+    return f"""
+      <h3>分析问题与方向定义</h3>
+      <p>该图检验两组语料在原始 4096 维 Qwen3 嵌入空间中是否能够对称地覆盖彼此。对每条儿童文本，<strong>儿童文本被 AI 覆盖</strong>是它与 220 条 AI 图像级文本中最相似一条的余弦相似度；对每条 AI 文本，<strong>AI 文本被儿童覆盖</strong>是它与 331 条儿童文本中最相似一条的余弦相似度。两者分母不同，回答的是两个方向不同的问题。</p>
+      <h3>A-D 四个子图如何阅读</h3>
+      <ul>
+        <li><strong>A，最近邻相似度分布：</strong>AI-to-child 分布更集中且整体右移，均值为 {cov_nn['ai_covered_by_children']['mean']:.3f}；child-to-AI 均值为 {cov_nn['children_covered_by_ai']['mean']:.3f}。均值差为 {cov_nn['ai_minus_children_mean_similarity']:.3f}（95% CI：{cov_nn['ai_minus_children_mean_similarity_ci95'][0]:.3f}-{cov_nn['ai_minus_children_mean_similarity_ci95'][1]:.3f}）。这表示典型 AI 文本在儿童语料中找到的近邻，比典型儿童文本在 AI 语料中找到的近邻更相似。</li>
+        <li><strong>B，阈值覆盖曲线：</strong>只有当最佳跨组匹配达到阈值 tau 时才记为“被覆盖”。在有解释价值的阈值区间内，红线持续高于蓝线，说明方向差异并非由单一阈值偶然造成。</li>
+        <li><strong>C，关键阈值比较：</strong>在 tau = 0.65 时，{tau_065['ai_covered_by_children']:.1%} 的 AI 文本能找到合格的儿童近邻，但仅 {tau_065['children_covered_by_ai']:.1%} 的儿童文本能找到合格的 AI 近邻。主分析保留全部 331 条儿童文本和 220 条 AI 文本，没有进行平衡抽样。</li>
+        <li><strong>D，方向不对称：</strong>纵轴是“AI 文本被儿童覆盖率”减去“儿童文本被 AI 覆盖率”。正值表示儿童语料接纳 AI 文本的能力高于 AI 语料接纳儿童文本的能力；tau = 0.65 时差值为 {tau_065['ai_minus_children_coverage']:.1%}。</li>
+      </ul>
+      <h3>实质性结论</h3>
+      <p>当前证据支持的表述是：<strong>AI 输出常落入儿童已经表达过的共享语义核心，但儿童具有大量未被 AI 重现的情境化语义变化。</strong>简言之，AI 覆盖了儿童经验中的部分共享核心，而儿童语料还保留了显著的 AI 未匹配语义长尾。</p>
+      <p class="boundary"><strong>推断边界：</strong>这是方向性最近邻覆盖，不等于证明一个语义集合在几何上完全包含另一个集合，也不表示儿童理解或认同 AI 文本。结果还可能受到诱发任务、文本长度、AI 基于图片回答而儿童基于访谈回答等形式差异的影响。</p>
+    """
+
+
+def semantic_frontier_explanation(pr_primary: dict, pr_best: dict, local_nn: dict) -> str:
+    return f"""
+      <h3>该图比第 4 节多回答了什么</h3>
+      <p>第 4 节确认方向不对称；本图进一步检验这种重叠是<strong>广泛分散</strong>在许多文本上，还是由少量高度通用的“接收文本”造成。这里借用生成文本评价中的 precision/recall 思路：<strong>AI semantic precision</strong>是至少接近一条儿童文本的 AI 输出比例；<strong>child semantic recall</strong>是至少被一条 AI 输出找回的儿童文本比例。</p>
+      <h3>A-D 四个子图如何阅读</h3>
+      <ul>
+        <li><strong>A，语义前沿：</strong>每个点对应一个相似度阈值。tau = 0.65 时，AI semantic precision 为 {pr_primary['ai_semantic_precision']:.1%}，child semantic recall 仅为 {pr_primary['child_semantic_recall']:.1%}。这是“高 precision、低 recall”结构：AI 通常没有离开儿童可识别的语义区域，但只重现了儿童语料中有限的一部分。</li>
+        <li><strong>B，阈值敏感性：</strong>F1-like 调和均值和 precision-minus-recall 差值用于观察结论如何随 tau 改变。扫描范围中的表面最佳平衡位于 tau = {pr_best['threshold']:.2f}，precision 为 {pr_best['ai_semantic_precision']:.1%}、recall 为 {pr_best['child_semantic_recall']:.1%}；但该阈值较宽松，只能作为敏感性参考，不能取代主阈值证据。</li>
+        <li><strong>C，最近邻分配集中度：</strong>曲线表示最近邻分配如何累积到接收文本上。曲线长期贴近零、到最右端才陡升，意味着大多数匹配被极少数文本吸收，而不是均匀分布在整组语料中。</li>
+        <li><strong>D，hubness 摘要：</strong>{local_nn['children_as_receivers_for_ai']['zero_receiver_share']:.1%} 的儿童文本没有接收到任何 AI 最近邻分配；儿童接收文本中的前 10% 吸收了 {local_nn['children_as_receivers_for_ai']['top10_assignment_share']:.1%} 的 AI 分配（Gini = {local_nn['children_as_receivers_for_ai']['gini']:.3f}）。反方向上，{local_nn['ai_as_receivers_for_children']['zero_receiver_share']:.1%} 的 AI 文本没有接收到儿童分配，前 10% 吸收了 {local_nn['ai_as_receivers_for_children']['top10_assignment_share']:.1%}。互为最近邻的配对仅有 {local_nn['mutual_nearest_neighbor_pairs']} 对，占 AI 输出的 {local_nn['mutual_pair_share_of_ai']:.1%}。</li>
+      </ul>
+      <h3>与第 4 节合并解释</h3>
+      <p>“70.0% 的 AI 文本被儿童覆盖”不能解读成“AI 表达了儿童 70.0% 的语义领地”。它只表示 70.0% 的 AI 文本能找到至少一个合格的儿童近邻。由于这些匹配高度集中在少数儿童文本上，更准确的结构是：<strong>双方存在狭窄的共享语义核心，但儿童一侧具有更宽的独特语义长尾</strong>，而不是两组文本广泛、均匀地双向一致。</p>
+      <p class="boundary"><strong>术语与方法边界：</strong>semantic precision/recall 是描述性类比，不是监督分类中的 precision/recall；F1-like 只是报告辅助量，不是经验证的分类器 F1。hubness 可能被高维嵌入几何、重复模板和文本粒度差异放大，因此在把“共享核心”解释成具体儿童经验之前，还应人工审阅代表性的 hub 文本及其最近邻。</p>
+    """
+
+
 def figure_card(title: str, path: Path, caption: str) -> str:
     return f"""<section class="card figure-card">
       <h2>{title}</h2>
       <img src="{image_uri(path)}" alt="{title}">
-      <p class="caption">{caption}</p>
+      <div class="caption">{caption}</div>
     </section>"""
 
 
@@ -195,6 +229,11 @@ def build_html() -> Path:
     .metric .value {{ font-size: 27px; font-weight: 700; margin-top: 4px; }}
     img {{ width: 100%; height: auto; display: block; border: 1px solid #e5eaf0; border-radius: 6px; background: white; }}
     .caption {{ color: var(--muted); font-size: 14px; margin: 10px 0 0; }}
+    .caption h3 {{ color: var(--ink); font-size: 16px; margin: 16px 0 6px; }}
+    .caption p {{ margin: 6px 0; }}
+    .caption ul {{ margin: 6px 0 8px; padding-left: 22px; }}
+    .caption li {{ margin: 4px 0; }}
+    .caption .boundary {{ color: var(--ink); background: #f1f5f8; border-left: 4px solid #7b8794; padding: 9px 11px; margin-top: 12px; }}
     table {{ width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }}
     th, td {{ border-bottom: 1px solid #e8edf2; padding: 10px; vertical-align: top; text-align: left; }}
     th {{ background: #eef4f9; }}
@@ -274,13 +313,13 @@ def build_html() -> Path:
   {figure_card(
       "4. 高维方向性语义覆盖",
       figs["coverage"],
-      f"这是覆盖结论的主证据。最近邻检索在 4096 维 Qwen3 空间中完成。AI-to-child 均值比 child-to-AI 高 {cov_nn['ai_minus_children_mean_similarity']:.3f}，95% CI 为 {cov_nn['ai_minus_children_mean_similarity_ci95'][0]:.3f} 到 {cov_nn['ai_minus_children_mean_similarity_ci95'][1]:.3f}。在 tau = 0.65 时，AI 覆盖率为 {tau_065['ai_covered_by_children']:.1%}，儿童覆盖率为 {tau_065['children_covered_by_ai']:.1%}。"
+      directional_coverage_explanation(cov_nn, tau_065)
   )}
 
   {figure_card(
       "5. Precision/Recall 风格的语义覆盖前沿",
       figs["frontier"],
-      f"该图借鉴 MAUVE 与 precision/recall 类研究：AI semantic precision 表示 AI 输出是否落入儿童语义域，child semantic recall 表示 AI 覆盖了多少儿童语义域。在 tau = 0.65 时，precision 为 {pr_primary['ai_semantic_precision']:.1%}，recall 为 {pr_primary['child_semantic_recall']:.1%}。扫描区间中的 F1-like 最佳平衡出现在 tau = {pr_best['threshold']:.2f}，但这是较宽松阈值，应作为敏感性参考而不是主阈值。局部近邻诊断进一步显示 hubness：{local_nn['children_as_receivers_for_ai']['zero_receiver_share']:.1%} 的儿童文本没有接收任何 AI 最近邻分配，而前 10% 儿童接收文本吸收了 {local_nn['children_as_receivers_for_ai']['top10_assignment_share']:.1%} 的 AI 分配。"
+      semantic_frontier_explanation(pr_primary, pr_best, local_nn)
   )}
 
   {figure_card(

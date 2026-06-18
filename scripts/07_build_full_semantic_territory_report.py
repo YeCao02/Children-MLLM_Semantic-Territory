@@ -115,7 +115,7 @@ def figure_card(title: str, path: Path, caption: str) -> str:
     return f"""<section class="card figure-card">
       <h2>{title}</h2>
       <img src="{image_uri(path)}" alt="{title}">
-      <p class="caption">{caption}</p>
+      <div class="caption">{caption}</div>
     </section>"""
 
 
@@ -123,6 +123,40 @@ def metric(value: float | int | str, digits: int = 3) -> str:
     if isinstance(value, float):
         return f"{value:.{digits}f}"
     return str(value)
+
+
+def directional_coverage_explanation(cov_nn: dict, tau_065: dict) -> str:
+    return f"""
+      <h3>Question and directional definitions</h3>
+      <p>This figure asks whether the two corpora cover one another symmetrically in the original 4096-dimensional Qwen3 embedding space. For every child utterance, <strong>child covered by AI</strong> is its maximum cosine similarity to any of the 220 AI image-level outputs. For every AI output, <strong>AI covered by children</strong> is its maximum similarity to any of the 331 child utterances. These directions have different denominators and answer different questions.</p>
+      <h3>How to read panels A-D</h3>
+      <ul>
+        <li><strong>A, nearest-neighbor distributions:</strong> the AI-to-child distribution is narrower and shifted right. Its mean is {cov_nn['ai_covered_by_children']['mean']:.3f}, compared with {cov_nn['children_covered_by_ai']['mean']:.3f} for child-to-AI; the mean gap is {cov_nn['ai_minus_children_mean_similarity']:.3f} (95% CI {cov_nn['ai_minus_children_mean_similarity_ci95'][0]:.3f}-{cov_nn['ai_minus_children_mean_similarity_ci95'][1]:.3f}). Thus, a typical AI text has a closer child analogue than a typical child text has an AI analogue.</li>
+        <li><strong>B, threshold curves:</strong> a text counts as covered only when its best cross-group match reaches threshold tau. The red curve remains above the blue curve over the substantively useful threshold range, so the asymmetry is not an artefact of one cut-off.</li>
+        <li><strong>C, selected thresholds:</strong> at tau = 0.65, {tau_065['ai_covered_by_children']:.1%} of AI outputs find a qualifying child match, but only {tau_065['children_covered_by_ai']:.1%} of child utterances find a qualifying AI match. The comparison retains all 331 child and 220 AI observations; no balanced subsampling is used.</li>
+        <li><strong>D, directional gap:</strong> the plotted quantity is AI-covered-by-children minus child-covered-by-AI. Positive values mean that children's corpus receives AI texts more successfully than the AI corpus receives children's texts. The gap is {tau_065['ai_minus_children_coverage']:.1%} at tau = 0.65.</li>
+      </ul>
+      <h3>Substantive conclusion</h3>
+      <p>The supported claim is: <strong>AI outputs frequently fall within a shared core already expressed by children, whereas a large share of children's situated semantic variation is not reproduced by AI.</strong> In short, AI covers part of the shared core of children's experience, while the child corpus retains a substantial AI-unmatched semantic tail.</p>
+      <p class="boundary"><strong>Inference boundary:</strong> this is directional nearest-neighbor coverage, not proof that one semantic set is geometrically contained inside the other, and not evidence that children literally understand or endorse the AI text. The result may also reflect differences in elicitation, text length, image-based AI prompts and interview-based child responses.</p>
+    """
+
+
+def semantic_frontier_explanation(pr_primary: dict, pr_best: dict, local_nn: dict) -> str:
+    return f"""
+      <h3>What this figure adds</h3>
+      <p>Section 4 establishes directional asymmetry; this figure tests whether the apparent overlap is <strong>broadly distributed</strong> or produced by a small number of highly generic receiver texts. The terms precision and recall are adapted from generative-text evaluation: <strong>AI semantic precision</strong> is the share of AI outputs that fall near at least one child text, while <strong>child semantic recall</strong> is the share of child utterances recovered by at least one AI output.</p>
+      <h3>How to read panels A-D</h3>
+      <ul>
+        <li><strong>A, semantic frontier:</strong> each point is one threshold. At tau = 0.65, AI semantic precision is {pr_primary['ai_semantic_precision']:.1%}, but child semantic recall is only {pr_primary['child_semantic_recall']:.1%}. This is a high-precision/low-recall pattern: AI usually stays in a child-recognizable semantic region but reproduces only a limited portion of the child corpus.</li>
+        <li><strong>B, threshold sensitivity:</strong> the F1-like harmonic mean and the precision-minus-recall gap show how the conclusion changes with tau. The apparent best balance occurs at tau = {pr_best['threshold']:.2f}, where precision is {pr_best['ai_semantic_precision']:.1%} and recall is {pr_best['child_semantic_recall']:.1%}; this threshold is permissive and therefore a sensitivity reference, not the primary evidential threshold.</li>
+        <li><strong>C, assignment concentration:</strong> the curves summarize how nearest-neighbor assignments accumulate across receiver texts. A curve that stays near zero and rises only at the far right means that most matches are absorbed by very few receiver texts rather than spread evenly across the corpus.</li>
+        <li><strong>D, hubness:</strong> {local_nn['children_as_receivers_for_ai']['zero_receiver_share']:.1%} of child texts receive no AI nearest-neighbor assignment, and the top 10% of child receiver texts absorb {local_nn['children_as_receivers_for_ai']['top10_assignment_share']:.1%} of AI assignments (Gini = {local_nn['children_as_receivers_for_ai']['gini']:.3f}). In the reverse direction, {local_nn['ai_as_receivers_for_children']['zero_receiver_share']:.1%} of AI texts receive no child assignment and the top 10% absorb {local_nn['ai_as_receivers_for_children']['top10_assignment_share']:.1%}. Only {local_nn['mutual_nearest_neighbor_pairs']} pairs are mutual nearest neighbors ({local_nn['mutual_pair_share_of_ai']:.1%} of AI outputs).</li>
+      </ul>
+      <h3>Joint interpretation with Section 4</h3>
+      <p>The 70.0% AI-to-child coverage should not be read as 70.0% of children's semantic territory being represented. It means 70.0% of AI outputs can find some qualifying child analogue. Because those matches concentrate on a small set of child texts, the overlap is better described as a <strong>narrow shared semantic core with a broad child-specific tail</strong>, rather than uniform two-way agreement.</p>
+      <p class="boundary"><strong>Terminology boundary:</strong> semantic precision/recall are descriptive analogues, not supervised-classification precision/recall; F1-like is a reporting aid, not a validated classifier F1. Hubness can be amplified by embedding geometry, repeated templates and unequal text granularity, so representative hub texts should be qualitatively audited before making a substantive claim about which experiences form the shared core.</p>
+    """
 
 
 def build_html() -> Path:
@@ -302,6 +336,11 @@ def build_html() -> Path:
     .metric .value {{ font-size: 27px; font-weight: 700; margin-top: 4px; }}
     img {{ width: 100%; height: auto; display: block; border: 1px solid #e5eaf0; border-radius: 6px; background: white; }}
     .caption {{ color: var(--muted); font-size: 14px; margin: 10px 0 0; }}
+    .caption h3 {{ color: var(--ink); font-size: 16px; margin: 16px 0 6px; }}
+    .caption p {{ margin: 6px 0; }}
+    .caption ul {{ margin: 6px 0 8px; padding-left: 22px; }}
+    .caption li {{ margin: 4px 0; }}
+    .caption .boundary {{ color: var(--ink); background: #f1f5f8; border-left: 4px solid #7b8794; padding: 9px 11px; margin-top: 12px; }}
     table {{ width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }}
     th, td {{ border-bottom: 1px solid #e8edf2; padding: 10px; vertical-align: top; text-align: left; }}
     th {{ background: #eef4f9; }}
@@ -322,7 +361,7 @@ def build_html() -> Path:
 
   <section class="card">
     <h2>1. Core Interpretation</h2>
-    <p class="note">主发现来自 Qwen3-Embedding-8B 的 4096 维语义空间，而不是来自 t-SNE 的二维肉眼判断。t-SNE 只负责把点投影出来帮助读者理解；“覆盖”“广度”“最近邻相似度”均在原始高维空间中计算。</p>
+    <p class="note">The primary findings come from the original 4096-dimensional Qwen3-Embedding-8B space, not visual judgment of the two-dimensional t-SNE projection. t-SNE is used only to support interpretation; coverage, extent and nearest-neighbor similarity are all computed before projection.</p>
     <ul>
       <li><span class="pill green">Directional coverage</span> AI outputs are easier to retrieve from the child corpus than child utterances are from the AI corpus: mean nearest-neighbor similarity is {cov_nn['ai_covered_by_children']['mean']:.3f} for AI-to-child retrieval versus {cov_nn['children_covered_by_ai']['mean']:.3f} for child-to-AI retrieval.</li>
       <li>At tau = 0.65, {tau_065['ai_covered_by_children']:.1%} of AI outputs are covered by at least one child utterance, but only {tau_065['children_covered_by_ai']:.1%} of child utterances are covered by AI. This supports the cautious wording: <strong>AI is more easily matched into children's semantic territory than the reverse</strong>.</li>
@@ -376,13 +415,13 @@ def build_html() -> Path:
   {figure_card(
       "4. High-dimensional Directional Coverage",
       figs["coverage"],
-      f"This is the main evidence for the coverage claim. Nearest-neighbor retrieval is computed in the original 4096D Qwen3 space. AI-to-child mean similarity exceeds child-to-AI by {cov_nn['ai_minus_children_mean_similarity']:.3f} (95% CI {cov_nn['ai_minus_children_mean_similarity_ci95'][0]:.3f} to {cov_nn['ai_minus_children_mean_similarity_ci95'][1]:.3f}). At tau = 0.65, AI coverage is {tau_065['ai_covered_by_children']:.1%}, while child coverage is {tau_065['children_covered_by_ai']:.1%}."
+      directional_coverage_explanation(cov_nn, tau_065)
   )}
 
   {figure_card(
       "5. Precision/Recall-style Semantic Frontier",
       figs["frontier"],
-      f"Inspired by precision/recall and neural-human text distribution work, AI semantic precision is defined as AI outputs covered by children, while child semantic recall is defined as child utterances covered by AI. At tau = 0.65, precision is {pr_primary['ai_semantic_precision']:.1%} and recall is {pr_primary['child_semantic_recall']:.1%}; the max F1-like balance in the scanned range occurs at tau = {pr_best['threshold']:.2f}, a permissive threshold kept only as a sensitivity reference. Local-neighborhood diagnostics show hubness: {local_nn['children_as_receivers_for_ai']['zero_receiver_share']:.1%} of child texts receive no AI nearest-neighbor assignments, while the top 10% receive {local_nn['children_as_receivers_for_ai']['top10_assignment_share']:.1%} of AI assignments."
+      semantic_frontier_explanation(pr_primary, pr_best, local_nn)
   )}
 
   {figure_card(
