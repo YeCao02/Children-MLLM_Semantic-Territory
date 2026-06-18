@@ -18,3 +18,10 @@ Expected `model_texts.pkl` structure:
 
 The public repository includes only placeholders, scripts, derived figures and aggregate
 summary metrics. Per-text affect predictions are intentionally ignored.
+
+Public derived semantic-coverage outputs:
+
+- `semantic_coverage_metrics.json`: aggregate high-dimensional nearest-neighbor
+  coverage rates and confidence intervals.
+- `semantic_coverage_points.csv`: per-point group labels, t-SNE coordinates and
+  thresholded coverage status. It does not include raw text.

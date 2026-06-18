@@ -1,14 +1,15 @@
 {
-  "visualization_unit": "balanced child direct environment utterances vs AI image-level combined outputs",
-  "children_n": 220,
+  "visualization_unit": "fixed observed child direct environment utterances vs AI image-level combined outputs",
+  "sample_policy": "No balanced subsampling: all children_direct utterances and all AI combined image-level outputs are retained.",
+  "children_n": 331,
   "ai_n": 220,
-  "children_ke_joint_centroid": 0.925463080406189,
-  "ai_ke_joint_centroid": 0.7359588742256165,
-  "children_p95_joint_centroid": 0.8926607251167297,
-  "ai_p95_joint_centroid": 0.6850776821374892,
+  "children_ke_joint_centroid": 0.9115039706230164,
+  "ai_ke_joint_centroid": 0.7657586336135864,
+  "children_p95_joint_centroid": 0.8620340824127197,
+  "ai_p95_joint_centroid": 0.7162704825401306,
   "larger_extent_group": "Children",
-  "centroid_distance": 0.6199226379394531,
-  "child_to_ai_nn_median": 0.5425530076026917,
-  "ai_to_child_nn_median": 0.6700240969657898,
-  "figure": "S:\\LLMs\\Qwen3VL-children\\Paper2_T-SNE_pipeline\\data\\figures_v2\\Fig_v2_hao_style_ai_children.png"
+  "centroid_distance": 0.624330997467041,
+  "child_to_ai_nn_median": 0.5448381900787354,
+  "ai_to_child_nn_median": 0.6727383136749268,
+  "figure": "/mnt/s/LLMs/Qwen3VL-children/Paper2_T-SNE_pipeline/data/figures_v2/Fig_v2_hao_style_ai_children.png"
 }

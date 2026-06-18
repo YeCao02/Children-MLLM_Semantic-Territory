@@ -104,12 +104,11 @@ def plot_hao_style() -> tuple[Path, dict]:
     ai_combined_embs = ai_meta["combined"]["embeddings"]
     ai_combined_texts = ai_meta["combined"]["texts"]
 
-    # Keep all AI image-level units and a deterministic, size-balanced sample of child direct utterances.
-    rng = np.random.default_rng(RANDOM_SEED)
-    sample_n = min(len(child_direct_embs), len(ai_combined_embs))
-    child_idx = rng.choice(len(child_direct_embs), size=sample_n, replace=False)
-    child_plot_embs = child_direct_embs[child_idx]
-    child_plot_texts = [child_direct_texts[i] for i in child_idx]
+    # Use the fixed observed corpora: all direct child utterances and all AI image-level units.
+    # The two text sources are not paired at utterance level, so no balanced subsampling is used here.
+    child_plot_embs = child_direct_embs
+    child_plot_texts = child_direct_texts
+    child_n = len(child_plot_embs)
 
     plot_embs = np.vstack([child_plot_embs, ai_combined_embs])
     coords = TSNE(
@@ -119,10 +118,10 @@ def plot_hao_style() -> tuple[Path, dict]:
         init="pca",
         learning_rate="auto",
     ).fit_transform(plot_embs)
-    child_coords = coords[:sample_n]
-    ai_coords = coords[sample_n:]
+    child_coords = coords[:child_n]
+    ai_coords = coords[child_n:]
 
-    radii = scaled_circle_radii(coords, plot_embs, sample_n)
+    radii = scaled_circle_radii(coords, plot_embs, child_n)
     center = radii["center_2d"]
 
     blue = "#4C78D8"
@@ -258,8 +257,9 @@ def plot_hao_style() -> tuple[Path, dict]:
     plt.close(fig)
 
     metrics = {
-        "visualization_unit": "balanced child direct environment utterances vs AI image-level combined outputs",
-        "children_n": int(sample_n),
+        "visualization_unit": "fixed observed child direct environment utterances vs AI image-level combined outputs",
+        "sample_policy": "No balanced subsampling: all children_direct utterances and all AI combined image-level outputs are retained.",
+        "children_n": int(child_n),
         "ai_n": int(len(ai_combined_embs)),
         "children_ke_joint_centroid": radii["child_ke"],
         "ai_ke_joint_centroid": radii["ai_ke"],

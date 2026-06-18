@@ -5,7 +5,7 @@ This repository contains a reproducible analysis pipeline for comparing children
 The method is inspired by Hao et al. (2026), *Artificial intelligence tools expand scientists' impact but contract science's focus*. Their Fig. 3 separates high-dimensional semantic extent measurement from t-SNE visualization. This project adapts the same logic to AI-vs-children text comparison:
 
 - use Qwen3-Embedding-8B vectors as the semantic space;
-- compute semantic extent, centroid distance, entropy and nearest-neighbor overlap in the original high-dimensional space;
+- compute semantic extent, centroid distance, entropy and directional nearest-neighbor coverage in the original high-dimensional space;
 - use traditional t-SNE and a Hao-style semantic territory map only as explanatory visualizations;
 - distinguish shared semantic ground from group-specific semantic territories.
 
@@ -25,6 +25,8 @@ The method is inspired by Hao et al. (2026), *Artificial intelligence tools expa
   Builds the comprehensive HTML report.
 - `scripts/08_affective_alignment.py`
   Runs dual-model Chinese affect classification, robustness checks and semantic-affective alignment.
+- `scripts/09_semantic_coverage_analysis.py`  
+  Computes the main high-dimensional directional coverage curves and t-SNE coverage-status diagnostic.
 - `scripts/run_affective_alignment_wsl.sh`
   Runs the affective module and rebuilds the report in the existing WSL `llm` environment.
 - `docs/`  
@@ -73,6 +75,7 @@ Run the method audit and build reports:
 python scripts/03_semantic_space_analysis.py
 python scripts/05_method_audit_v2.py
 python scripts/06_make_hao_style_visual.py
+python scripts/09_semantic_coverage_analysis.py
 python scripts/07_build_full_semantic_territory_report.py
 ```
 
@@ -94,9 +97,9 @@ Primary report:
 
 The recommended paper framing is not simply "AI differs from children." A stronger framing is:
 
-> AI and children share a semantic core around abstract child-friendly evaluation dimensions, but they expand into different semantic territories. Children emphasize situated, embodied and everyday urban experience; AI emphasizes standardized planning vocabulary and generic child-friendly design templates.
+> AI outputs are easier to match into children's semantic territory than the reverse, while children occupy a broader and more situated semantic extent. Children emphasize embodied everyday urban experience; AI emphasizes standardized planning vocabulary and generic child-friendly design templates.
 
-The Hao-style visualization is explanatory. Formal claims should rely on high-dimensional Qwen3 embedding metrics rather than t-SNE area.
+The high-dimensional directional coverage curves are the main evidence. The Hao-style visualization and t-SNE plots are explanatory. Formal claims should rely on Qwen3 embedding metrics rather than t-SNE area.
 
 ## Affective Analysis
 
@@ -108,3 +111,9 @@ concern/distress, inquiry/surprise and neutral expression.
 Predictions represent affective cues expressed in text. They are not measurements of a
 child's internal emotion, mental health or stable disposition. Fine-grained claims require
 human-coded validation.
+
+## Related Methods
+
+See `docs/related_work_visualization_references.md` for references on high-dimensional
+knowledge extent, generated-human text distributional gaps, precision/recall-style
+coverage, embedding-space visualization and AI-human urban perception comparisons.

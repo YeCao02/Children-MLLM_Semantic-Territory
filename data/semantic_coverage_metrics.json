@@ -1,0 +1,184 @@
+{
+  "method": {
+    "embedding_model": "Qwen/Qwen3-Embedding-8B",
+    "embedding_dimensions": 4096,
+    "sample_policy": "Fixed observed samples; no balanced subsampling.",
+    "children_direct_n": 331,
+    "ai_combined_n": 220,
+    "definition": {
+      "children_covered_by_ai": "For each child utterance, max cosine similarity to any AI combined image-level output.",
+      "ai_covered_by_children": "For each AI combined output, max cosine similarity to any direct child utterance."
+    }
+  },
+  "nearest_neighbor_summary": {
+    "children_covered_by_ai": {
+      "n": 331,
+      "mean": 0.547505795955658,
+      "median": 0.5448381900787354,
+      "q25": 0.47453369200229645,
+      "q75": 0.6241512596607208,
+      "p10": 0.4244852066040039,
+      "p90": 0.6803076863288879,
+      "min": 0.3306337594985962,
+      "max": 0.7757063508033752
+    },
+    "ai_covered_by_children": {
+      "n": 220,
+      "mean": 0.670183539390564,
+      "median": 0.6727383136749268,
+      "q25": 0.6438275128602982,
+      "q75": 0.6961305737495422,
+      "p10": 0.6221532344818115,
+      "p90": 0.7160547256469727,
+      "min": 0.5348377227783203,
+      "max": 0.7757063508033752
+    },
+    "ai_minus_children_mean_similarity": 0.122677743434906,
+    "ai_minus_children_mean_similarity_ci95": [
+      0.11085778772830963,
+      0.13347070217132567
+    ],
+    "ai_minus_children_median_similarity": 0.1279001235961914,
+    "tests": {
+      "mann_whitney_u_greater_p": 7.52332245221228e-48,
+      "mann_whitney_u_two_sided_p": 1.504664490442456e-47,
+      "ks_two_sided_p": 4.991899499065346e-58,
+      "ks_statistic": 0.6750205987366108
+    }
+  },
+  "coverage_by_threshold": [
+    {
+      "threshold": 0.5,
+      "children_covered_by_ai": 0.6465256797583081,
+      "children_covered_by_ai_ci95": [
+        0.595166163141994,
+        0.6978851963746223
+      ],
+      "ai_covered_by_children": 1.0,
+      "ai_covered_by_children_ci95": [
+        1.0,
+        1.0
+      ],
+      "ai_minus_children_coverage": 0.3534743202416919,
+      "ai_minus_children_coverage_ci95": [
+        0.3021148036253777,
+        0.404833836858006
+      ]
+    },
+    {
+      "threshold": 0.55,
+      "children_covered_by_ai": 0.48338368580060426,
+      "children_covered_by_ai_ci95": [
+        0.43202416918429004,
+        0.5377643504531722
+      ],
+      "ai_covered_by_children": 0.9954545454545455,
+      "ai_covered_by_children_ci95": [
+        0.9863636363636363,
+        1.0
+      ],
+      "ai_minus_children_coverage": 0.5120708596539412,
+      "ai_minus_children_coverage_ci95": [
+        0.45914961549024996,
+        0.5679758308157099
+      ]
+    },
+    {
+      "threshold": 0.6,
+      "children_covered_by_ai": 0.31722054380664655,
+      "children_covered_by_ai_ci95": [
+        0.2688821752265861,
+        0.3685800604229607
+      ],
+      "ai_covered_by_children": 0.9772727272727273,
+      "ai_covered_by_children_ci95": [
+        0.9545454545454546,
+        0.9954545454545455
+      ],
+      "ai_minus_children_coverage": 0.6600521834660807,
+      "ai_minus_children_coverage_ci95": [
+        0.6071683603405658,
+        0.7159853062345509
+      ]
+    },
+    {
+      "threshold": 0.626,
+      "children_covered_by_ai": 0.25075528700906347,
+      "children_covered_by_ai_ci95": [
+        0.2054380664652568,
+        0.2990936555891239
+      ],
+      "ai_covered_by_children": 0.8772727272727273,
+      "ai_covered_by_children_ci95": [
+        0.8318181818181818,
+        0.9181818181818182
+      ],
+      "ai_minus_children_coverage": 0.6265174402636638,
+      "ai_minus_children_coverage_ci95": [
+        0.5614117000823949,
+        0.6885745674265312
+      ]
+    },
+    {
+      "threshold": 0.65,
+      "children_covered_by_ai": 0.1691842900302115,
+      "children_covered_by_ai_ci95": [
+        0.1299093655589124,
+        0.20853474320241652
+      ],
+      "ai_covered_by_children": 0.7,
+      "ai_covered_by_children_ci95": [
+        0.6407954545454545,
+        0.759090909090909
+      ],
+      "ai_minus_children_coverage": 0.5308157099697884,
+      "ai_minus_children_coverage_ci95": [
+        0.4566458390552046,
+        0.601936967865971
+      ]
+    },
+    {
+      "threshold": 0.7,
+      "children_covered_by_ai": 0.06948640483383686,
+      "children_covered_by_ai_ci95": [
+        0.045317220543806644,
+        0.09969788519637462
+      ],
+      "ai_covered_by_children": 0.22272727272727272,
+      "ai_covered_by_children_ci95": [
+        0.17272727272727273,
+        0.2772727272727273
+      ],
+      "ai_minus_children_coverage": 0.15324086789343586,
+      "ai_minus_children_coverage_ci95": [
+        0.09414995880252677,
+        0.21536288107662707
+      ]
+    },
+    {
+      "threshold": 0.75,
+      "children_covered_by_ai": 0.00906344410876133,
+      "children_covered_by_ai_ci95": [
+        0.0,
+        0.021148036253776436
+      ],
+      "ai_covered_by_children": 0.013636363636363636,
+      "ai_covered_by_children_ci95": [
+        0.0,
+        0.031818181818181815
+      ],
+      "ai_minus_children_coverage": 0.0045729195276023055,
+      "ai_minus_children_coverage_ci95": [
+        -0.013554655314474045,
+        0.024251579236473496
+      ]
+    }
+  ],
+  "figures": {
+    "coverage_curves": "data/figures_v2/Fig_v2_semantic_coverage_curves.png",
+    "tsne_coverage_status": "data/figures_v2/Fig_v2_tsne_coverage_status.png"
+  },
+  "derived_files": {
+    "coverage_points": "data/semantic_coverage_points.csv"
+  }
+}

@@ -21,6 +21,7 @@
     "analysis_results_v2": "data/analysis_results_v2.json",
     "hao_style_metrics": "data/hao_style_metrics.json",
     "legacy_analysis_results": "data/analysis_results.json",
-    "affective_alignment_metrics": "data/affective_alignment_metrics.json"
+    "affective_alignment_metrics": "data/affective_alignment_metrics.json",
+    "semantic_coverage_metrics": "data/semantic_coverage_metrics.json"
   }
 }

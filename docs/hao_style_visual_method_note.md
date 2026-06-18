@@ -12,7 +12,7 @@
 
 ## 新图的读法
 
-输出图：`data\figures_v2\Fig_v2_hao_style_ai_children.png`
+输出图：`data/figures_v2/Fig_v2_hao_style_ai_children.png`
 
 这张图效仿 Hao et al. 2026 Fig. 3b：
 
@@ -27,10 +27,10 @@
 
 这张图是说明性可视化，不是正式统计推断。正式结论仍应基于 4096 维归一化嵌入空间：
 
-- Children KE around shared centroid: 0.9255
-- AI KE around shared centroid: 0.7360
-- Centroid distance: 0.6199
-- Median nearest-neighbor similarity, child-to-AI / AI-to-child: 0.5426 / 0.6700
+- Children KE around shared centroid: 0.9115
+- AI KE around shared centroid: 0.7658
+- Centroid distance: 0.6243
+- Median nearest-neighbor similarity, child-to-AI / AI-to-child: 0.5448 / 0.6727
 
 ## 推荐论文写法
 
