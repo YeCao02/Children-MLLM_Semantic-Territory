@@ -46,6 +46,11 @@ territory analysis. The most relevant methodological pattern is:
   statistical evidence.
 - Show nearest-neighbor distributions and thresholded coverage rates in both
   directions.
+- Add a precision/recall-style frontier: AI semantic precision measures whether AI
+  outputs fall inside children's semantic territory, while child semantic recall
+  measures how much of children's territory AI covers.
+- Pair global t-SNE maps with local-neighborhood diagnostics such as mutual nearest
+  neighbors, receiver concentration and hubness.
 - Keep the Hao-style t-SNE figure as an explanatory map, explicitly noting that
   circles and coverage labels come from the original embedding space.
 - Place BERT-style affective alignment in an exploratory or supplementary section

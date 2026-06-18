@@ -19,6 +19,7 @@ FIG_DIR = DATA_DIR / "figures_v2"
 RANDOM_SEED = 42
 BOOTSTRAP_N = 2000
 THRESHOLDS = [0.50, 0.55, 0.60, 0.626, 0.65, 0.70, 0.75]
+FRONTIER_THRESHOLDS = [round(x, 3) for x in np.arange(0.45, 0.781, 0.01)]
 PRIMARY_THRESHOLD = 0.65
 
 
@@ -49,6 +50,34 @@ def summarize_scores(scores: np.ndarray) -> dict:
         "min": float(np.min(scores)),
         "max": float(np.max(scores)),
     }
+
+
+def gini(values: np.ndarray) -> float:
+    arr = np.asarray(values, dtype=float)
+    if np.all(arr == 0):
+        return 0.0
+    arr = np.sort(arr)
+    n = len(arr)
+    weighted = np.sum((np.arange(1, n + 1) * arr))
+    return float((2 * weighted) / (n * arr.sum()) - (n + 1) / n)
+
+
+def top_share(values: np.ndarray, proportion: float = 0.10) -> float:
+    arr = np.asarray(values, dtype=float)
+    if arr.sum() == 0:
+        return 0.0
+    top_n = max(1, int(np.ceil(len(arr) * proportion)))
+    return float(np.sort(arr)[-top_n:].sum() / arr.sum())
+
+
+def lorenz_curve(values: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    arr = np.sort(np.asarray(values, dtype=float))
+    if arr.sum() == 0:
+        x = np.linspace(0, 1, len(arr) + 1)
+        return x, np.zeros_like(x)
+    cum = np.concatenate([[0.0], np.cumsum(arr) / arr.sum()])
+    x = np.linspace(0, 1, len(cum))
+    return x, cum
 
 
 def bootstrap_rate(scores: np.ndarray, threshold: float, repeats: int = BOOTSTRAP_N) -> list[float]:
@@ -120,6 +149,13 @@ def compute_coverage(child_embs: np.ndarray, ai_embs: np.ndarray) -> tuple[pd.Da
     child_to_ai_arg = sim.argmax(axis=1)
     ai_to_child = sim.max(axis=0)
     ai_to_child_arg = sim.argmax(axis=0)
+    child_receiver_counts = np.bincount(ai_to_child_arg, minlength=len(child_embs))
+    ai_receiver_counts = np.bincount(child_to_ai_arg, minlength=len(ai_embs))
+    mutual_pairs = [
+        (int(child_idx), int(ai_idx))
+        for child_idx, ai_idx in enumerate(child_to_ai_arg)
+        if ai_to_child_arg[ai_idx] == child_idx
+    ]
 
     mean_diff, mean_diff_ci = bootstrap_mean_difference(ai_to_child, child_to_ai)
     try:
@@ -149,6 +185,25 @@ def compute_coverage(child_embs: np.ndarray, ai_embs: np.ndarray) -> tuple[pd.Da
                 "ai_covered_by_children_ci95": bootstrap_rate(ai_to_child, threshold),
                 "ai_minus_children_coverage": diff,
                 "ai_minus_children_coverage_ci95": diff_ci,
+            }
+        )
+
+    frontier_rows = []
+    for threshold in FRONTIER_THRESHOLDS:
+        ai_precision = float(np.mean(ai_to_child >= threshold))
+        child_recall = float(np.mean(child_to_ai >= threshold))
+        f1 = (
+            0.0
+            if ai_precision + child_recall == 0
+            else float(2 * ai_precision * child_recall / (ai_precision + child_recall))
+        )
+        frontier_rows.append(
+            {
+                "threshold": float(threshold),
+                "ai_semantic_precision": ai_precision,
+                "child_semantic_recall": child_recall,
+                "f1_like_balance": f1,
+                "precision_minus_recall": float(ai_precision - child_recall),
             }
         )
 
@@ -193,6 +248,37 @@ def compute_coverage(child_embs: np.ndarray, ai_embs: np.ndarray) -> tuple[pd.Da
             "tests": tests,
         },
         "coverage_by_threshold": rows,
+        "precision_recall_frontier": {
+            "definition": {
+                "ai_semantic_precision": "Share of AI outputs that have a child nearest-neighbor above threshold.",
+                "child_semantic_recall": "Share of child utterances that have an AI nearest-neighbor above threshold.",
+                "f1_like_balance": "Harmonic mean of AI semantic precision and child semantic recall at the same threshold.",
+            },
+            "thresholds": frontier_rows,
+            "best_f1_like": max(frontier_rows, key=lambda row: row["f1_like_balance"]),
+            "primary_tau_065": next(
+                row for row in frontier_rows if abs(row["threshold"] - PRIMARY_THRESHOLD) < 1e-9
+            ),
+        },
+        "local_neighborhood": {
+            "mutual_nearest_neighbor_pairs": int(len(mutual_pairs)),
+            "mutual_pair_share_of_children": float(len(mutual_pairs) / len(child_embs)),
+            "mutual_pair_share_of_ai": float(len(mutual_pairs) / len(ai_embs)),
+            "children_as_receivers_for_ai": {
+                "zero_receiver_share": float(np.mean(child_receiver_counts == 0)),
+                "top10_assignment_share": top_share(child_receiver_counts),
+                "gini": gini(child_receiver_counts),
+                "max_assignments_to_one_child": int(child_receiver_counts.max()),
+                "receiver_counts": child_receiver_counts.astype(int).tolist(),
+            },
+            "ai_as_receivers_for_children": {
+                "zero_receiver_share": float(np.mean(ai_receiver_counts == 0)),
+                "top10_assignment_share": top_share(ai_receiver_counts),
+                "gini": gini(ai_receiver_counts),
+                "max_assignments_to_one_ai": int(ai_receiver_counts.max()),
+                "receiver_counts": ai_receiver_counts.astype(int).tolist(),
+            },
+        },
     }
     return pd.DataFrame(point_rows), metrics
 
@@ -413,6 +499,141 @@ def plot_tsne_coverage(
     return out
 
 
+def plot_precision_recall_frontier(metrics: dict) -> Path:
+    frontier = pd.DataFrame(metrics["precision_recall_frontier"]["thresholds"])
+    local = metrics["local_neighborhood"]
+    child_receivers = np.asarray(local["children_as_receivers_for_ai"]["receiver_counts"])
+    ai_receivers = np.asarray(local["ai_as_receivers_for_children"]["receiver_counts"])
+
+    fig = plt.figure(figsize=(12, 8.2))
+    gs = fig.add_gridspec(2, 2, hspace=0.34, wspace=0.30)
+    ax1 = fig.add_subplot(gs[0, 0])
+    ax2 = fig.add_subplot(gs[0, 1])
+    ax3 = fig.add_subplot(gs[1, 0])
+    ax4 = fig.add_subplot(gs[1, 1])
+
+    sc = ax1.scatter(
+        frontier["child_semantic_recall"],
+        frontier["ai_semantic_precision"],
+        c=frontier["threshold"],
+        cmap="viridis",
+        s=48,
+        edgecolors="white",
+        linewidths=0.4,
+    )
+    ax1.plot(frontier["child_semantic_recall"], frontier["ai_semantic_precision"], color="#555555", lw=1)
+    primary = metrics["precision_recall_frontier"]["primary_tau_065"]
+    best = metrics["precision_recall_frontier"]["best_f1_like"]
+    ax1.scatter(
+        [primary["child_semantic_recall"]],
+        [primary["ai_semantic_precision"]],
+        s=140,
+        marker="*",
+        color="#D55E00",
+        edgecolors="white",
+        linewidths=0.7,
+        label="tau = 0.65",
+        zorder=4,
+    )
+    ax1.scatter(
+        [best["child_semantic_recall"]],
+        [best["ai_semantic_precision"]],
+        s=110,
+        marker="D",
+        color="#0072B2",
+        edgecolors="white",
+        linewidths=0.7,
+        label=f"best balance tau = {best['threshold']:.2f}",
+        zorder=4,
+    )
+    ax1.set_xlim(-0.02, 1.02)
+    ax1.set_ylim(-0.02, 1.02)
+    ax1.set_title("A. Semantic precision-recall frontier")
+    ax1.set_xlabel("Child semantic recall\n(child utterances covered by AI)")
+    ax1.set_ylabel("AI semantic precision\n(AI outputs covered by children)")
+    ax1.legend(frameon=True, loc="lower left")
+    cb = fig.colorbar(sc, ax=ax1, fraction=0.046, pad=0.04)
+    cb.set_label("Similarity threshold")
+
+    ax2.plot(frontier["threshold"], frontier["f1_like_balance"], color="#009E73", marker="o", ms=4, label="F1-like balance")
+    ax2.plot(frontier["threshold"], frontier["precision_minus_recall"], color="#CC79A7", marker="s", ms=4, label="Precision - recall")
+    ax2.axvline(PRIMARY_THRESHOLD, color="#333333", ls="--", lw=1.1)
+    ax2.axhline(0, color="#777777", ls=":", lw=1.0)
+    ax2.set_title("B. Threshold sensitivity")
+    ax2.set_xlabel("Similarity threshold")
+    ax2.set_ylabel("Score")
+    ax2.legend(frameon=True, loc="best")
+
+    for counts, label, color in [
+        (child_receivers, "Child texts receiving AI assignments", "#F25A5A"),
+        (ai_receivers, "AI texts receiving child assignments", "#4C78D8"),
+    ]:
+        x, y = lorenz_curve(counts)
+        ax3.plot(x, y, lw=2.2, color=color, label=label)
+    ax3.plot([0, 1], [0, 1], color="#777777", ls="--", lw=1)
+    ax3.set_title("C. Local-neighborhood concentration")
+    ax3.set_xlabel("Cumulative share of receiver texts")
+    ax3.set_ylabel("Cumulative share of NN assignments")
+    ax3.legend(frameon=True, loc="upper left")
+
+    summary_rows = pd.DataFrame(
+        [
+            {
+                "receiver_set": "Children\nreceiving AI",
+                "Top 10% share": local["children_as_receivers_for_ai"]["top10_assignment_share"],
+                "Zero-receiver share": local["children_as_receivers_for_ai"]["zero_receiver_share"],
+            },
+            {
+                "receiver_set": "AI\nreceiving children",
+                "Top 10% share": local["ai_as_receivers_for_children"]["top10_assignment_share"],
+                "Zero-receiver share": local["ai_as_receivers_for_children"]["zero_receiver_share"],
+            },
+        ]
+    )
+    summary_long = pd.melt(
+        summary_rows,
+        id_vars=["receiver_set"],
+        value_vars=["Top 10% share", "Zero-receiver share"],
+        var_name="metric",
+        value_name="share",
+    )
+    sns.barplot(
+        data=summary_long,
+        x="receiver_set",
+        y="share",
+        hue="metric",
+        palette=["#E69F00", "#56B4E9"],
+        ax=ax4,
+    )
+    ax4.set_ylim(0, 1)
+    ax4.set_title("D. Receiver hubness summary")
+    ax4.set_xlabel("")
+    ax4.set_ylabel("Share")
+    ax4.legend(frameon=False, loc="upper right")
+    ax4.text(
+        0.02,
+        0.04,
+        (
+            f"Mutual NN pairs: {local['mutual_nearest_neighbor_pairs']} "
+            f"({local['mutual_pair_share_of_ai']:.1%} of AI outputs)"
+        ),
+        transform=ax4.transAxes,
+        fontsize=9,
+        color="#333333",
+        bbox=dict(facecolor="white", edgecolor="#cccccc", alpha=0.85),
+    )
+
+    fig.suptitle(
+        "Precision/recall-style semantic coverage and local-neighborhood diagnostics",
+        fontsize=14,
+        y=0.985,
+    )
+    out = FIG_DIR / "Fig_v2_semantic_pr_frontier.png"
+    fig.savefig(out, bbox_inches="tight")
+    plt.close(fig)
+    return out
+
+
 def main() -> None:
     method = load_method_module()
     configure_plotting(method)
@@ -422,9 +643,11 @@ def main() -> None:
     points, metrics = compute_coverage(child_embs, ai_embs)
     coverage_fig = plot_coverage(metrics, points)
     tsne_fig = plot_tsne_coverage(child_embs, ai_embs, points)
+    frontier_fig = plot_precision_recall_frontier(metrics)
     metrics["figures"] = {
         "coverage_curves": str(coverage_fig.relative_to(BASE_DIR)),
         "tsne_coverage_status": str(tsne_fig.relative_to(BASE_DIR)),
+        "precision_recall_frontier": str(frontier_fig.relative_to(BASE_DIR)),
     }
     metrics["derived_files"] = {
         "coverage_points": "data/semantic_coverage_points.csv",
@@ -434,7 +657,7 @@ def main() -> None:
     out.write_text(json.dumps(metrics, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"Children direct n={len(child_texts)}; AI combined n={len(ai_texts)}")
     print(f"Saved semantic coverage metrics: {out}")
-    print(f"Saved figures: {coverage_fig}; {tsne_fig}")
+    print(f"Saved figures: {coverage_fig}; {tsne_fig}; {frontier_fig}")
 
 
 if __name__ == "__main__":

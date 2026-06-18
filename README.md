@@ -26,9 +26,11 @@ The method is inspired by Hao et al. (2026), *Artificial intelligence tools expa
 - `scripts/08_affective_alignment.py`
   Runs dual-model Chinese affect classification, robustness checks and semantic-affective alignment.
 - `scripts/09_semantic_coverage_analysis.py`  
-  Computes the main high-dimensional directional coverage curves and t-SNE coverage-status diagnostic.
+  Computes the main high-dimensional directional coverage curves, precision/recall-style coverage frontier, local-neighborhood hubness diagnostics and t-SNE coverage-status diagnostic.
+- `scripts/10_build_chinese_report.py`
+  Builds the full Chinese HTML report from the same derived metrics and figures.
 - `scripts/run_affective_alignment_wsl.sh`
-  Runs the affective module and rebuilds the report in the existing WSL `llm` environment.
+  Runs the affective module and rebuilds both English and Chinese reports in the existing WSL `llm` environment.
 - `docs/`  
   Method notes and implementation documentation.
 - `data/figures/` and `data/figures_v2/`  
@@ -77,6 +79,7 @@ python scripts/05_method_audit_v2.py
 python scripts/06_make_hao_style_visual.py
 python scripts/09_semantic_coverage_analysis.py
 python scripts/07_build_full_semantic_territory_report.py
+python scripts/10_build_chinese_report.py
 ```
 
 Run the semantic-affective module in WSL:
@@ -89,9 +92,10 @@ bash scripts/run_affective_alignment_wsl.sh
 The script uses `/home/rk/miniconda3/envs/llm/bin/python` by default. Hugging Face
 weights are cached under `/home/rk/.cache/huggingface` and are not committed.
 
-Primary report:
+Primary reports:
 
 - `Children_MLLM_Semantic_Territory_Full_Report.html`
+- `Children_MLLM_Semantic_Territory_Full_Report_ZH.html`
 
 ## Method Summary
 
@@ -100,6 +104,13 @@ The recommended paper framing is not simply "AI differs from children." A strong
 > AI outputs are easier to match into children's semantic territory than the reverse, while children occupy a broader and more situated semantic extent. Children emphasize embodied everyday urban experience; AI emphasizes standardized planning vocabulary and generic child-friendly design templates.
 
 The high-dimensional directional coverage curves are the main evidence. The Hao-style visualization and t-SNE plots are explanatory. Formal claims should rely on Qwen3 embedding metrics rather than t-SNE area.
+
+The precision/recall-style semantic frontier translates related work on neural-human
+text distribution gaps into this corpus: AI semantic precision asks whether AI outputs
+fall inside children's semantic domain, while child semantic recall asks how much of
+children's semantic domain is covered by AI. Local-neighborhood hubness diagnostics
+check whether the nearest-neighbor matches are spread broadly across children or
+concentrated in a narrow subset of child utterances.
 
 ## Affective Analysis
 

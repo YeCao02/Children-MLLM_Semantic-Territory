@@ -22,6 +22,9 @@ summary metrics. Per-text affect predictions are intentionally ignored.
 Public derived semantic-coverage outputs:
 
 - `semantic_coverage_metrics.json`: aggregate high-dimensional nearest-neighbor
-  coverage rates and confidence intervals.
+  coverage rates, confidence intervals, precision/recall-style frontier metrics and
+  local-neighborhood hubness diagnostics.
 - `semantic_coverage_points.csv`: per-point group labels, t-SNE coordinates and
   thresholded coverage status. It does not include raw text.
+- `figures_v2/Fig_v2_semantic_pr_frontier.png`: semantic precision/child recall
+  frontier plus local-neighborhood concentration diagnostics.

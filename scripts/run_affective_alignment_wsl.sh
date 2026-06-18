@@ -10,3 +10,4 @@ cd "$PROJECT_DIR"
 "$PYTHON" scripts/08_affective_alignment.py "$@"
 "$PYTHON" scripts/09_semantic_coverage_analysis.py
 "$PYTHON" scripts/07_build_full_semantic_territory_report.py
+"$PYTHON" scripts/10_build_chinese_report.py

@@ -137,6 +137,7 @@ def build_html() -> Path:
 
     figs = {
         "coverage": FIG_DIR / "Fig_v2_semantic_coverage_curves.png",
+        "frontier": FIG_DIR / "Fig_v2_semantic_pr_frontier.png",
         "coverage_tsne": FIG_DIR / "Fig_v2_tsne_coverage_status.png",
         "hao": FIG_DIR / "Fig_v2_hao_style_ai_children.png",
         "traditional": DATA_DIR / "figures" / "Fig3_tsne.png",
@@ -231,6 +232,9 @@ def build_html() -> Path:
     child_env = v2["metrics"]["child_env_scene"]
     ai_combined = v2["metrics"]["ai_combined"]
     cov_nn = coverage["nearest_neighbor_summary"]
+    pr_primary = coverage["precision_recall_frontier"]["primary_tau_065"]
+    pr_best = coverage["precision_recall_frontier"]["best_f1_like"]
+    local_nn = coverage["local_neighborhood"]
     tau_065 = next(row for row in coverage["coverage_by_threshold"] if abs(row["threshold"] - 0.65) < 1e-9)
     tau_626 = next(row for row in coverage["coverage_by_threshold"] if abs(row["threshold"] - 0.626) < 1e-9)
     affect_main = affect["main_model"]
@@ -376,25 +380,31 @@ def build_html() -> Path:
   )}
 
   {figure_card(
-      "5. t-SNE Annotated by 4096D Coverage Status",
+      "5. Precision/Recall-style Semantic Frontier",
+      figs["frontier"],
+      f"Inspired by precision/recall and neural-human text distribution work, AI semantic precision is defined as AI outputs covered by children, while child semantic recall is defined as child utterances covered by AI. At tau = 0.65, precision is {pr_primary['ai_semantic_precision']:.1%} and recall is {pr_primary['child_semantic_recall']:.1%}; the max F1-like balance in the scanned range occurs at tau = {pr_best['threshold']:.2f}, a permissive threshold kept only as a sensitivity reference. Local-neighborhood diagnostics show hubness: {local_nn['children_as_receivers_for_ai']['zero_receiver_share']:.1%} of child texts receive no AI nearest-neighbor assignments, while the top 10% receive {local_nn['children_as_receivers_for_ai']['top10_assignment_share']:.1%} of AI assignments."
+  )}
+
+  {figure_card(
+      "6. t-SNE Annotated by 4096D Coverage Status",
       figs["coverage_tsne"],
       "This plot keeps the familiar t-SNE layout, but the color labels are computed before projection. It shows why t-SNE can be useful for inspection while still being weaker than high-dimensional coverage curves for inference."
   )}
 
   {figure_card(
-      "6. Hao-style Semantic Territory Map",
+      "7. Hao-style Semantic Territory Map",
       figs["hao"],
       "This is the Hao et al. Fig. 3b-style explanatory figure. Circles and KE values summarize high-dimensional semantic extent; t-SNE is used only to place points and labels in a visually interpretable shared space."
   )}
 
   <div class="grid two">
     {figure_card(
-        "7. Traditional t-SNE View",
+        "8. Traditional t-SNE View",
         figs["traditional"],
         "This preserves the conventional t-SNE plot for comparison. It is useful for seeing coarse separation, but it does not explain what the separation means."
     )}
     {figure_card(
-        "8. Diagnostic t-SNE: Text Type Effect",
+        "9. Diagnostic t-SNE: Text Type Effect",
         figs["diagnostic"],
         "This diagnostic plot shows that AI reason and suggestion form different textual clusters. This is why reason and suggestion should be treated as separate or explicitly combined image-level units."
     )}
@@ -402,12 +412,12 @@ def build_html() -> Path:
 
   <div class="grid two">
     {figure_card(
-        "9. High-dimensional Semantic Extent",
+        "10. High-dimensional Semantic Extent",
         figs["extent"],
         "This legacy sensitivity view shows how KE, p95 radius and mean radius change across children, AI combined, AI reason and AI suggestion. The main coverage analysis above keeps the observed 331/220 samples fixed."
     )}
     {figure_card(
-        "10. Exploratory Semantic Entropy",
+        "11. Exploratory Semantic Entropy",
         figs["entropy"],
         f"Following Hao's entropy idea, this exploratory check estimates concentration in a PCA-10D grid. Median entropy: children {entropy_summary['Children direct']['median']:.3f}, AI {entropy_summary['AI combined']['median']:.3f}."
     )}
@@ -415,25 +425,25 @@ def build_html() -> Path:
 
   <div class="grid two">
     {figure_card(
-        "11. Centroid Distance Matrix",
+        "12. Centroid Distance Matrix",
         figs["heatmap"],
         "This matrix separates children’s direct environment perception, children’s meta-evaluation of AI/expert text, and AI reason/suggestion/combined outputs."
     )}
     {figure_card(
-        "12. Distinctive Semantic Anchors",
+        "13. Distinctive Semantic Anchors",
         figs["keywords"],
         "Domain-term contrast helps interpret what the embedding-space difference means substantively."
     )}
   </div>
 
   {figure_card(
-      "13. Pairwise Similarity Distribution",
+      "14. Pairwise Similarity Distribution",
       figs["violin"],
       "Within-group and between-group cosine similarities provide a complementary semantic-gap check. Treat it as supportive evidence, not as the only finding."
   )}
 
   <section class="card">
-    <h2>14. Exploratory Semantic-affective Module</h2>
+    <h2>15. Exploratory Semantic-affective Module</h2>
     <p class="note">This module is exploratory and should not be treated as the main finding. It asks a different question from Qwen3 semantic coverage: even when AI and children mention similar spatial features, do they express those features with similar concern, engagement, inquiry and neutrality?</p>
     <table>
       <thead><tr><th>Evidence</th><th>Result</th><th>Interpretation</th></tr></thead>
@@ -449,26 +459,26 @@ def build_html() -> Path:
   </section>
 
   {figure_card(
-      "15. Exploratory Affective Profiles by Text Type",
+      "16. Exploratory Affective Profiles by Text Type",
       figs["affect_profiles"],
       "Children's direct perception and meta-evaluation contain more varied affective cues. AI suggestion is almost entirely classified as neutral, consistent with standardized recommendation language."
   )}
 
   <div class="grid two">
     {figure_card(
-        "16. Dual-model Robustness and Face Validity",
+        "17. Dual-model Robustness and Face Validity",
         figs["affect_robustness"],
         "The left panel compares the direction of the AI-minus-child difference in four common dimensions. The right panel exposes complementary model weaknesses using transparent Chinese anchor sentences."
     )}
     {figure_card(
-        "17. Semantic-affective Alignment Map",
+        "18. Semantic-affective Alignment Map",
         figs["semantic_affective"],
         f"Semantic overlap and affective overlap are measured separately. Mean semantic overlap is {alignment['group_means']['children_direct']['semantic_overlap']:.3f} for child-to-AI retrieval and {alignment['group_means']['ai_combined']['semantic_overlap']:.3f} for AI-to-child retrieval. Treat this figure as an exploratory bridge between semantic and affective cues; the main directional-coverage evidence is Section 4."
     )}
   </div>
 
   <section class="card">
-    <h2>18. Related Work to Cite and Borrow From</h2>
+    <h2>19. Related Work to Cite and Borrow From</h2>
     <p class="note">These references are most useful for writing the method and visualization rationale. The strongest connection is not simply t-SNE, but the combination of high-dimensional distributional metrics, directional precision/recall or coverage, and low-dimensional explanatory visualization.</p>
     <table>
       <thead><tr><th>Reference</th><th>Relevant method or finding</th><th>How to borrow it here</th></tr></thead>
@@ -477,7 +487,7 @@ def build_html() -> Path:
   </section>
 
   <section class="card">
-    <h2>19. Additional Analyses to Add Next</h2>
+    <h2>20. Additional Analyses to Add Next</h2>
     <ol>
       <li><strong>Image-paired semantic error:</strong> create an <code>image_id -> children_comments -> AI_output</code> table, then compute per-image centroid distance and nearest-neighbor mismatch.</li>
       <li><strong>Dimension-level coverage:</strong> manually or semi-automatically code safety, practicality, accessibility, play, greenery, digital facilities, social supervision and everyday constraints, then compare coverage rates.</li>
